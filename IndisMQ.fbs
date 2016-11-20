@@ -59,5 +59,22 @@ table Imq{
     StsMsg:string;
     Callback:bool;
     Ver:Ver;
+    Auth:Auth;
 }
+
+table Auth{
+	User:string;
+	Pass:string;
+	Token:string;
+	Domain:string;
+	Required:boolean;
+	Timestamp:long;
+	Nonce:string;
+	Ciphers:[string];
+	Alg:string;
+	Err:AuthErr;
+	ErrMsg:string;
+	Msg:string;
+}
+enum AuthErr:byte{NONE,INVALID,UNAUTHORIZED}
 root_type Imq;
