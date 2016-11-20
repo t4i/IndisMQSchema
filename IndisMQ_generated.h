@@ -12,6 +12,9 @@ struct Ver;
 struct Imq;
 struct ImqT;
 
+struct Auth;
+struct AuthT;
+
 enum class MsgType : int8_t {
   NONE = 0,
   SINGLE = 1,
@@ -103,6 +106,21 @@ inline const char **EnumNamesErr() {
 
 inline const char *EnumNameErr(Err e) { return EnumNamesErr()[static_cast<int>(e)]; }
 
+enum class AuthErr : int8_t {
+  NONE = 0,
+  INVALID = 1,
+  UNAUTHORIZED = 2,
+  MIN = NONE,
+  MAX = UNAUTHORIZED
+};
+
+inline const char **EnumNamesAuthErr() {
+  static const char *names[] = { "NONE", "INVALID", "UNAUTHORIZED", nullptr };
+  return names;
+}
+
+inline const char *EnumNameAuthErr(AuthErr e) { return EnumNamesAuthErr()[static_cast<int>(e)]; }
+
 MANUALLY_ALIGNED_STRUCT(1) Ver FLATBUFFERS_FINAL_CLASS {
  private:
   int8_t Major_;
@@ -135,6 +153,7 @@ struct ImqT : public flatbuffers::NativeTable {
   std::string StsMsg;
   bool Callback;
   std::unique_ptr<Ver> Ver;
+  std::unique_ptr<AuthT> Auth;
 };
 
 struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
@@ -151,7 +170,8 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_ERR = 22,
     VT_STSMSG = 24,
     VT_CALLBACK = 26,
-    VT_VER = 28
+    VT_VER = 28,
+    VT_AUTH = 30
   };
   const flatbuffers::Vector<uint8_t> *Body() const { return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_BODY); }
   flatbuffers::Vector<uint8_t> *mutable_Body() { return GetPointer<flatbuffers::Vector<uint8_t> *>(VT_BODY); }
@@ -161,24 +181,26 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   flatbuffers::String *mutable_To() { return GetPointer<flatbuffers::String *>(VT_TO); }
   bool Broker() const { return GetField<uint8_t>(VT_BROKER, 0) != 0; }
   bool mutate_Broker(bool _Broker) { return SetField(VT_BROKER, static_cast<uint8_t>(_Broker)); }
-  IndisMQ::Cmd Cmd() const { return static_cast<IndisMQ::Cmd>(GetField<int8_t>(VT_CMD, 0)); }
-  bool mutate_Cmd(IndisMQ::Cmd _Cmd) { return SetField(VT_CMD, static_cast<int8_t>(_Cmd)); }
+  Cmd Cmd() const { return static_cast<Cmd>(GetField<int8_t>(VT_CMD, 0)); }
+  bool mutate_Cmd(Cmd _Cmd) { return SetField(VT_CMD, static_cast<int8_t>(_Cmd)); }
   const flatbuffers::String *MsgId() const { return GetPointer<const flatbuffers::String *>(VT_MSGID); }
   flatbuffers::String *mutable_MsgId() { return GetPointer<flatbuffers::String *>(VT_MSGID); }
-  IndisMQ::MsgType MsgType() const { return static_cast<IndisMQ::MsgType>(GetField<int8_t>(VT_MSGTYPE, 0)); }
-  bool mutate_MsgType(IndisMQ::MsgType _MsgType) { return SetField(VT_MSGTYPE, static_cast<int8_t>(_MsgType)); }
-  IndisMQ::Sts Sts() const { return static_cast<IndisMQ::Sts>(GetField<int8_t>(VT_STS, 0)); }
-  bool mutate_Sts(IndisMQ::Sts _Sts) { return SetField(VT_STS, static_cast<int8_t>(_Sts)); }
+  MsgType MsgType() const { return static_cast<MsgType>(GetField<int8_t>(VT_MSGTYPE, 0)); }
+  bool mutate_MsgType(MsgType _MsgType) { return SetField(VT_MSGTYPE, static_cast<int8_t>(_MsgType)); }
+  Sts Sts() const { return static_cast<Sts>(GetField<int8_t>(VT_STS, 0)); }
+  bool mutate_Sts(Sts _Sts) { return SetField(VT_STS, static_cast<int8_t>(_Sts)); }
   const flatbuffers::String *Path() const { return GetPointer<const flatbuffers::String *>(VT_PATH); }
   flatbuffers::String *mutable_Path() { return GetPointer<flatbuffers::String *>(VT_PATH); }
-  IndisMQ::Err Err() const { return static_cast<IndisMQ::Err>(GetField<int8_t>(VT_ERR, 0)); }
-  bool mutate_Err(IndisMQ::Err _Err) { return SetField(VT_ERR, static_cast<int8_t>(_Err)); }
+  Err Err() const { return static_cast<Err>(GetField<int8_t>(VT_ERR, 0)); }
+  bool mutate_Err(Err _Err) { return SetField(VT_ERR, static_cast<int8_t>(_Err)); }
   const flatbuffers::String *StsMsg() const { return GetPointer<const flatbuffers::String *>(VT_STSMSG); }
   flatbuffers::String *mutable_StsMsg() { return GetPointer<flatbuffers::String *>(VT_STSMSG); }
   bool Callback() const { return GetField<uint8_t>(VT_CALLBACK, 0) != 0; }
   bool mutate_Callback(bool _Callback) { return SetField(VT_CALLBACK, static_cast<uint8_t>(_Callback)); }
-  const IndisMQ::Ver *Ver() const { return GetStruct<const IndisMQ::Ver *>(VT_VER); }
-  IndisMQ::Ver *mutable_Ver() { return GetStruct<IndisMQ::Ver *>(VT_VER); }
+  const Ver *Ver() const { return GetStruct<const Ver *>(VT_VER); }
+  Ver *mutable_Ver() { return GetStruct<Ver *>(VT_VER); }
+  const Auth *Auth() const { return GetPointer<const Auth *>(VT_AUTH); }
+  Auth *mutable_Auth() { return GetPointer<Auth *>(VT_AUTH); }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<flatbuffers::uoffset_t>(verifier, VT_BODY) &&
@@ -199,7 +221,9 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<flatbuffers::uoffset_t>(verifier, VT_STSMSG) &&
            verifier.Verify(StsMsg()) &&
            VerifyField<uint8_t>(verifier, VT_CALLBACK) &&
-           VerifyField<IndisMQ::Ver>(verifier, VT_VER) &&
+           VerifyField<Ver>(verifier, VT_VER) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_AUTH) &&
+           verifier.VerifyTable(Auth()) &&
            verifier.EndTable();
   }
   ImqT *UnPack(const flatbuffers::resolver_function_t *resolver = nullptr) const;
@@ -221,10 +245,11 @@ struct ImqBuilder {
   void add_StsMsg(flatbuffers::Offset<flatbuffers::String> StsMsg) { fbb_.AddOffset(Imq::VT_STSMSG, StsMsg); }
   void add_Callback(bool Callback) { fbb_.AddElement<uint8_t>(Imq::VT_CALLBACK, static_cast<uint8_t>(Callback), 0); }
   void add_Ver(const Ver *Ver) { fbb_.AddStruct(Imq::VT_VER, Ver); }
+  void add_Auth(flatbuffers::Offset<Auth> Auth) { fbb_.AddOffset(Imq::VT_AUTH, Auth); }
   ImqBuilder(flatbuffers::FlatBufferBuilder &_fbb) : fbb_(_fbb) { start_ = fbb_.StartTable(); }
   ImqBuilder &operator=(const ImqBuilder &);
   flatbuffers::Offset<Imq> Finish() {
-    auto o = flatbuffers::Offset<Imq>(fbb_.EndTable(start_, 13));
+    auto o = flatbuffers::Offset<Imq>(fbb_.EndTable(start_, 14));
     return o;
   }
 };
@@ -242,8 +267,10 @@ inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb,
     Err Err = Err::NONE,
     flatbuffers::Offset<flatbuffers::String> StsMsg = 0,
     bool Callback = false,
-    const Ver *Ver = 0) {
+    const Ver *Ver = 0,
+    flatbuffers::Offset<Auth> Auth = 0) {
   ImqBuilder builder_(_fbb);
+  builder_.add_Auth(Auth);
   builder_.add_Ver(Ver);
   builder_.add_StsMsg(StsMsg);
   builder_.add_Path(Path);
@@ -273,11 +300,165 @@ inline flatbuffers::Offset<Imq> CreateImqDirect(flatbuffers::FlatBufferBuilder &
     Err Err = Err::NONE,
     const char *StsMsg = nullptr,
     bool Callback = false,
-    const Ver *Ver = 0) {
-  return CreateImq(_fbb, Body ? _fbb.CreateVector<uint8_t>(*Body) : 0, From ? _fbb.CreateString(From) : 0, To ? _fbb.CreateString(To) : 0, Broker, Cmd, MsgId ? _fbb.CreateString(MsgId) : 0, MsgType, Sts, Path ? _fbb.CreateString(Path) : 0, Err, StsMsg ? _fbb.CreateString(StsMsg) : 0, Callback, Ver);
+    const Ver *Ver = 0,
+    flatbuffers::Offset<Auth> Auth = 0) {
+  return CreateImq(_fbb, Body ? _fbb.CreateVector<uint8_t>(*Body) : 0, From ? _fbb.CreateString(From) : 0, To ? _fbb.CreateString(To) : 0, Broker, Cmd, MsgId ? _fbb.CreateString(MsgId) : 0, MsgType, Sts, Path ? _fbb.CreateString(Path) : 0, Err, StsMsg ? _fbb.CreateString(StsMsg) : 0, Callback, Ver, Auth);
 }
 
 inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb, const ImqT *_o, const flatbuffers::rehasher_function_t *rehasher = nullptr);
+
+struct AuthT : public flatbuffers::NativeTable {
+  std::string User;
+  std::string Pass;
+  std::string Token;
+  std::string Domain;
+  bool Required;
+  int64_t Timestamp;
+  std::string Nonce;
+  std::vector<std::string> Ciphers;
+  std::string Alg;
+  AuthErr Err;
+  std::string ErrMsg;
+  std::string Msg;
+};
+
+struct Auth FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  enum {
+    VT_USER = 4,
+    VT_PASS = 6,
+    VT_TOKEN = 8,
+    VT_DOMAIN = 10,
+    VT_REQUIRED = 12,
+    VT_TIMESTAMP = 14,
+    VT_NONCE = 16,
+    VT_CIPHERS = 18,
+    VT_ALG = 20,
+    VT_ERR = 22,
+    VT_ERRMSG = 24,
+    VT_MSG = 26
+  };
+  const flatbuffers::String *User() const { return GetPointer<const flatbuffers::String *>(VT_USER); }
+  flatbuffers::String *mutable_User() { return GetPointer<flatbuffers::String *>(VT_USER); }
+  const flatbuffers::String *Pass() const { return GetPointer<const flatbuffers::String *>(VT_PASS); }
+  flatbuffers::String *mutable_Pass() { return GetPointer<flatbuffers::String *>(VT_PASS); }
+  const flatbuffers::String *Token() const { return GetPointer<const flatbuffers::String *>(VT_TOKEN); }
+  flatbuffers::String *mutable_Token() { return GetPointer<flatbuffers::String *>(VT_TOKEN); }
+  const flatbuffers::String *Domain() const { return GetPointer<const flatbuffers::String *>(VT_DOMAIN); }
+  flatbuffers::String *mutable_Domain() { return GetPointer<flatbuffers::String *>(VT_DOMAIN); }
+  bool Required() const { return GetField<uint8_t>(VT_REQUIRED, 0) != 0; }
+  bool mutate_Required(bool _Required) { return SetField(VT_REQUIRED, static_cast<uint8_t>(_Required)); }
+  int64_t Timestamp() const { return GetField<int64_t>(VT_TIMESTAMP, 0); }
+  bool mutate_Timestamp(int64_t _Timestamp) { return SetField(VT_TIMESTAMP, _Timestamp); }
+  const flatbuffers::String *Nonce() const { return GetPointer<const flatbuffers::String *>(VT_NONCE); }
+  flatbuffers::String *mutable_Nonce() { return GetPointer<flatbuffers::String *>(VT_NONCE); }
+  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *Ciphers() const { return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_CIPHERS); }
+  flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *mutable_Ciphers() { return GetPointer<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_CIPHERS); }
+  const flatbuffers::String *Alg() const { return GetPointer<const flatbuffers::String *>(VT_ALG); }
+  flatbuffers::String *mutable_Alg() { return GetPointer<flatbuffers::String *>(VT_ALG); }
+  AuthErr Err() const { return static_cast<AuthErr>(GetField<int8_t>(VT_ERR, 0)); }
+  bool mutate_Err(AuthErr _Err) { return SetField(VT_ERR, static_cast<int8_t>(_Err)); }
+  const flatbuffers::String *ErrMsg() const { return GetPointer<const flatbuffers::String *>(VT_ERRMSG); }
+  flatbuffers::String *mutable_ErrMsg() { return GetPointer<flatbuffers::String *>(VT_ERRMSG); }
+  const flatbuffers::String *Msg() const { return GetPointer<const flatbuffers::String *>(VT_MSG); }
+  flatbuffers::String *mutable_Msg() { return GetPointer<flatbuffers::String *>(VT_MSG); }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_USER) &&
+           verifier.Verify(User()) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_PASS) &&
+           verifier.Verify(Pass()) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_TOKEN) &&
+           verifier.Verify(Token()) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_DOMAIN) &&
+           verifier.Verify(Domain()) &&
+           VerifyField<uint8_t>(verifier, VT_REQUIRED) &&
+           VerifyField<int64_t>(verifier, VT_TIMESTAMP) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_NONCE) &&
+           verifier.Verify(Nonce()) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_CIPHERS) &&
+           verifier.Verify(Ciphers()) &&
+           verifier.VerifyVectorOfStrings(Ciphers()) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_ALG) &&
+           verifier.Verify(Alg()) &&
+           VerifyField<int8_t>(verifier, VT_ERR) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_ERRMSG) &&
+           verifier.Verify(ErrMsg()) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_MSG) &&
+           verifier.Verify(Msg()) &&
+           verifier.EndTable();
+  }
+  AuthT *UnPack(const flatbuffers::resolver_function_t *resolver = nullptr) const;
+};
+
+struct AuthBuilder {
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_User(flatbuffers::Offset<flatbuffers::String> User) { fbb_.AddOffset(Auth::VT_USER, User); }
+  void add_Pass(flatbuffers::Offset<flatbuffers::String> Pass) { fbb_.AddOffset(Auth::VT_PASS, Pass); }
+  void add_Token(flatbuffers::Offset<flatbuffers::String> Token) { fbb_.AddOffset(Auth::VT_TOKEN, Token); }
+  void add_Domain(flatbuffers::Offset<flatbuffers::String> Domain) { fbb_.AddOffset(Auth::VT_DOMAIN, Domain); }
+  void add_Required(bool Required) { fbb_.AddElement<uint8_t>(Auth::VT_REQUIRED, static_cast<uint8_t>(Required), 0); }
+  void add_Timestamp(int64_t Timestamp) { fbb_.AddElement<int64_t>(Auth::VT_TIMESTAMP, Timestamp, 0); }
+  void add_Nonce(flatbuffers::Offset<flatbuffers::String> Nonce) { fbb_.AddOffset(Auth::VT_NONCE, Nonce); }
+  void add_Ciphers(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> Ciphers) { fbb_.AddOffset(Auth::VT_CIPHERS, Ciphers); }
+  void add_Alg(flatbuffers::Offset<flatbuffers::String> Alg) { fbb_.AddOffset(Auth::VT_ALG, Alg); }
+  void add_Err(AuthErr Err) { fbb_.AddElement<int8_t>(Auth::VT_ERR, static_cast<int8_t>(Err), 0); }
+  void add_ErrMsg(flatbuffers::Offset<flatbuffers::String> ErrMsg) { fbb_.AddOffset(Auth::VT_ERRMSG, ErrMsg); }
+  void add_Msg(flatbuffers::Offset<flatbuffers::String> Msg) { fbb_.AddOffset(Auth::VT_MSG, Msg); }
+  AuthBuilder(flatbuffers::FlatBufferBuilder &_fbb) : fbb_(_fbb) { start_ = fbb_.StartTable(); }
+  AuthBuilder &operator=(const AuthBuilder &);
+  flatbuffers::Offset<Auth> Finish() {
+    auto o = flatbuffers::Offset<Auth>(fbb_.EndTable(start_, 12));
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<Auth> CreateAuth(flatbuffers::FlatBufferBuilder &_fbb,
+    flatbuffers::Offset<flatbuffers::String> User = 0,
+    flatbuffers::Offset<flatbuffers::String> Pass = 0,
+    flatbuffers::Offset<flatbuffers::String> Token = 0,
+    flatbuffers::Offset<flatbuffers::String> Domain = 0,
+    bool Required = false,
+    int64_t Timestamp = 0,
+    flatbuffers::Offset<flatbuffers::String> Nonce = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> Ciphers = 0,
+    flatbuffers::Offset<flatbuffers::String> Alg = 0,
+    AuthErr Err = AuthErr::NONE,
+    flatbuffers::Offset<flatbuffers::String> ErrMsg = 0,
+    flatbuffers::Offset<flatbuffers::String> Msg = 0) {
+  AuthBuilder builder_(_fbb);
+  builder_.add_Timestamp(Timestamp);
+  builder_.add_Msg(Msg);
+  builder_.add_ErrMsg(ErrMsg);
+  builder_.add_Alg(Alg);
+  builder_.add_Ciphers(Ciphers);
+  builder_.add_Nonce(Nonce);
+  builder_.add_Domain(Domain);
+  builder_.add_Token(Token);
+  builder_.add_Pass(Pass);
+  builder_.add_User(User);
+  builder_.add_Err(Err);
+  builder_.add_Required(Required);
+  return builder_.Finish();
+}
+
+inline flatbuffers::Offset<Auth> CreateAuthDirect(flatbuffers::FlatBufferBuilder &_fbb,
+    const char *User = nullptr,
+    const char *Pass = nullptr,
+    const char *Token = nullptr,
+    const char *Domain = nullptr,
+    bool Required = false,
+    int64_t Timestamp = 0,
+    const char *Nonce = nullptr,
+    const std::vector<flatbuffers::Offset<flatbuffers::String>> *Ciphers = nullptr,
+    const char *Alg = nullptr,
+    AuthErr Err = AuthErr::NONE,
+    const char *ErrMsg = nullptr,
+    const char *Msg = nullptr) {
+  return CreateAuth(_fbb, User ? _fbb.CreateString(User) : 0, Pass ? _fbb.CreateString(Pass) : 0, Token ? _fbb.CreateString(Token) : 0, Domain ? _fbb.CreateString(Domain) : 0, Required, Timestamp, Nonce ? _fbb.CreateString(Nonce) : 0, Ciphers ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*Ciphers) : 0, Alg ? _fbb.CreateString(Alg) : 0, Err, ErrMsg ? _fbb.CreateString(ErrMsg) : 0, Msg ? _fbb.CreateString(Msg) : 0);
+}
+
+inline flatbuffers::Offset<Auth> CreateAuth(flatbuffers::FlatBufferBuilder &_fbb, const AuthT *_o, const flatbuffers::rehasher_function_t *rehasher = nullptr);
 
 inline ImqT *Imq::UnPack(const flatbuffers::resolver_function_t *resolver) const {
   (void)resolver;
@@ -294,7 +475,8 @@ inline ImqT *Imq::UnPack(const flatbuffers::resolver_function_t *resolver) const
   { auto _e = Err(); _o->Err = _e; };
   { auto _e = StsMsg(); if (_e) _o->StsMsg = _e->str(); };
   { auto _e = Callback(); _o->Callback = _e; };
-  { auto _e = Ver(); if (_e) _o->Ver = std::unique_ptr<IndisMQ::Ver>(new IndisMQ::Ver(*_e)); };
+  { auto _e = Ver(); if (_e) _o->Ver = std::unique_ptr<Ver>(new Ver(*_e)); };
+  { auto _e = Auth(); if (_e) _o->Auth = std::unique_ptr<AuthT>(_e->UnPack(resolver)); };
   return _o;
 }
 
@@ -313,7 +495,43 @@ inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb, 
     _o->Err,
     _o->StsMsg.size() ? _fbb.CreateString(_o->StsMsg) : 0,
     _o->Callback,
-    _o->Ver ? _o->Ver.get() : 0);
+    _o->Ver ? _o->Ver.get() : 0,
+    _o->Auth ? CreateAuth(_fbb, _o->Auth.get(), rehasher) : 0);
+}
+
+inline AuthT *Auth::UnPack(const flatbuffers::resolver_function_t *resolver) const {
+  (void)resolver;
+  auto _o = new AuthT();
+  { auto _e = User(); if (_e) _o->User = _e->str(); };
+  { auto _e = Pass(); if (_e) _o->Pass = _e->str(); };
+  { auto _e = Token(); if (_e) _o->Token = _e->str(); };
+  { auto _e = Domain(); if (_e) _o->Domain = _e->str(); };
+  { auto _e = Required(); _o->Required = _e; };
+  { auto _e = Timestamp(); _o->Timestamp = _e; };
+  { auto _e = Nonce(); if (_e) _o->Nonce = _e->str(); };
+  { auto _e = Ciphers(); if (_e) { for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->Ciphers.push_back(_e->Get(_i)->str()); } } };
+  { auto _e = Alg(); if (_e) _o->Alg = _e->str(); };
+  { auto _e = Err(); _o->Err = _e; };
+  { auto _e = ErrMsg(); if (_e) _o->ErrMsg = _e->str(); };
+  { auto _e = Msg(); if (_e) _o->Msg = _e->str(); };
+  return _o;
+}
+
+inline flatbuffers::Offset<Auth> CreateAuth(flatbuffers::FlatBufferBuilder &_fbb, const AuthT *_o, const flatbuffers::rehasher_function_t *rehasher) {
+  (void)rehasher;
+  return CreateAuth(_fbb,
+    _o->User.size() ? _fbb.CreateString(_o->User) : 0,
+    _o->Pass.size() ? _fbb.CreateString(_o->Pass) : 0,
+    _o->Token.size() ? _fbb.CreateString(_o->Token) : 0,
+    _o->Domain.size() ? _fbb.CreateString(_o->Domain) : 0,
+    _o->Required,
+    _o->Timestamp,
+    _o->Nonce.size() ? _fbb.CreateString(_o->Nonce) : 0,
+    _o->Ciphers.size() ? _fbb.CreateVectorOfStrings(_o->Ciphers) : 0,
+    _o->Alg.size() ? _fbb.CreateString(_o->Alg) : 0,
+    _o->Err,
+    _o->ErrMsg.size() ? _fbb.CreateString(_o->ErrMsg) : 0,
+    _o->Msg.size() ? _fbb.CreateString(_o->Msg) : 0);
 }
 
 inline const IndisMQ::Imq *GetImq(const void *buf) {

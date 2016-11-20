@@ -40,6 +40,10 @@ ACK: Indicates Acknowledgement (not success) of a message
 enum Sts:byte{NONE,ERROR,REQ,REP,SEQ,CANCEL, SUCCESS, ACK} 
 
 enum Err:byte{NONE,NO_HANDLER, INVALID, REMOTE, TIMEOUT}
+
+enum AuthErr:byte{NONE,INVALID,UNAUTHORIZED}
+
+
 struct Ver{
     Major:byte;
     Minor:byte;
@@ -67,7 +71,7 @@ table Auth{
 	Pass:string;
 	Token:string;
 	Domain:string;
-	Required:boolean;
+	Required:bool;
 	Timestamp:long;
 	Nonce:string;
 	Ciphers:[string];
@@ -76,5 +80,5 @@ table Auth{
 	ErrMsg:string;
 	Msg:string;
 }
-enum AuthErr:byte{NONE,INVALID,UNAUTHORIZED}
+
 root_type Imq;

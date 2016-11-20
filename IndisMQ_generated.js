@@ -68,6 +68,15 @@ IndisMQ.Err = {
 };
 
 /**
+ * @enum
+ */
+IndisMQ.AuthErr = {
+  NONE: 0,
+  INVALID: 1,
+  UNAUTHORIZED: 2
+};
+
+/**
  * @constructor
  */
 IndisMQ.Ver = function() {
@@ -411,10 +420,19 @@ IndisMQ.Imq.prototype.Ver = function(obj) {
 };
 
 /**
+ * @param {IndisMQ.Auth=} obj
+ * @returns {IndisMQ.Auth}
+ */
+IndisMQ.Imq.prototype.Auth = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 30);
+  return offset ? (obj || new IndisMQ.Auth).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 IndisMQ.Imq.startImq = function(builder) {
-  builder.startObject(13);
+  builder.startObject(14);
 };
 
 /**
@@ -544,6 +562,14 @@ IndisMQ.Imq.addVer = function(builder, VerOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} AuthOffset
+ */
+IndisMQ.Imq.addAuth = function(builder, AuthOffset) {
+  builder.addFieldOffset(13, AuthOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 IndisMQ.Imq.endImq = function(builder) {
@@ -557,6 +583,333 @@ IndisMQ.Imq.endImq = function(builder) {
  */
 IndisMQ.Imq.finishImqBuffer = function(builder, offset) {
   builder.finish(offset, '0001');
+};
+
+/**
+ * @constructor
+ */
+IndisMQ.Auth = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {IndisMQ.Auth}
+ */
+IndisMQ.Auth.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {IndisMQ.Auth=} obj
+ * @returns {IndisMQ.Auth}
+ */
+IndisMQ.Auth.getRootAsAuth = function(bb, obj) {
+  return (obj || new IndisMQ.Auth).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Auth.prototype.User = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Auth.prototype.Pass = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Auth.prototype.Token = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Auth.prototype.Domain = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @returns {boolean}
+ */
+IndisMQ.Auth.prototype.Required = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @param {boolean} value
+ * @returns {boolean}
+ */
+IndisMQ.Auth.prototype.mutate_Required = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 12)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, +value);
+  return true;
+}
+
+/**
+ * @returns {flatbuffers.Long}
+ */
+IndisMQ.Auth.prototype.Timestamp = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
+};
+
+/**
+ * @param {flatbuffers.Long} value
+ * @returns {boolean}
+ */
+IndisMQ.Auth.prototype.mutate_Timestamp = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 14)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt64(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Auth.prototype.Nonce = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {number} index
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Auth.prototype.Ciphers = function(index, optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+IndisMQ.Auth.prototype.CiphersLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Auth.prototype.Alg = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @returns {IndisMQ.AuthErr}
+ */
+IndisMQ.Auth.prototype.Err = function() {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? /** @type {IndisMQ.AuthErr} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.AuthErr.NONE;
+};
+
+/**
+ * @param {IndisMQ.AuthErr} value
+ * @returns {boolean}
+ */
+IndisMQ.Auth.prototype.mutate_Err = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 22)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Auth.prototype.ErrMsg = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 24);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Auth.prototype.Msg = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+IndisMQ.Auth.startAuth = function(builder) {
+  builder.startObject(12);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} UserOffset
+ */
+IndisMQ.Auth.addUser = function(builder, UserOffset) {
+  builder.addFieldOffset(0, UserOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} PassOffset
+ */
+IndisMQ.Auth.addPass = function(builder, PassOffset) {
+  builder.addFieldOffset(1, PassOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} TokenOffset
+ */
+IndisMQ.Auth.addToken = function(builder, TokenOffset) {
+  builder.addFieldOffset(2, TokenOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} DomainOffset
+ */
+IndisMQ.Auth.addDomain = function(builder, DomainOffset) {
+  builder.addFieldOffset(3, DomainOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} Required
+ */
+IndisMQ.Auth.addRequired = function(builder, Required) {
+  builder.addFieldInt8(4, +Required, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Long} Timestamp
+ */
+IndisMQ.Auth.addTimestamp = function(builder, Timestamp) {
+  builder.addFieldInt64(5, Timestamp, builder.createLong(0, 0));
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} NonceOffset
+ */
+IndisMQ.Auth.addNonce = function(builder, NonceOffset) {
+  builder.addFieldOffset(6, NonceOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} CiphersOffset
+ */
+IndisMQ.Auth.addCiphers = function(builder, CiphersOffset) {
+  builder.addFieldOffset(7, CiphersOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+IndisMQ.Auth.createCiphersVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+IndisMQ.Auth.startCiphersVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} AlgOffset
+ */
+IndisMQ.Auth.addAlg = function(builder, AlgOffset) {
+  builder.addFieldOffset(8, AlgOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {IndisMQ.AuthErr} Err
+ */
+IndisMQ.Auth.addErr = function(builder, Err) {
+  builder.addFieldInt8(9, Err, IndisMQ.AuthErr.NONE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} ErrMsgOffset
+ */
+IndisMQ.Auth.addErrMsg = function(builder, ErrMsgOffset) {
+  builder.addFieldOffset(10, ErrMsgOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} MsgOffset
+ */
+IndisMQ.Auth.addMsg = function(builder, MsgOffset) {
+  builder.addFieldOffset(11, MsgOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+IndisMQ.Auth.endAuth = function(builder) {
+  var offset = builder.endObject();
+  return offset;
 };
 
 // Exports for Node.js and RequireJS

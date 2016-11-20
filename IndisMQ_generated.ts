@@ -68,6 +68,16 @@ export enum Err{
 }}
 
 /**
+ * @enum
+ */
+export namespace IndisMQ{
+export enum AuthErr{
+  NONE= 0,
+  INVALID= 1,
+  UNAUTHORIZED= 2
+}}
+
+/**
  * @constructor
  */
 export namespace IndisMQ{
@@ -421,10 +431,19 @@ Ver(obj?:IndisMQ.Ver):IndisMQ.Ver {
 };
 
 /**
+ * @param {IndisMQ.Auth=} obj
+ * @returns {IndisMQ.Auth}
+ */
+Auth(obj?:IndisMQ.Auth):IndisMQ.Auth {
+  var offset = this.bb.__offset(this.bb_pos, 30);
+  return offset ? (obj || new IndisMQ.Auth).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 static startImq(builder:flatbuffers.Builder) {
-  builder.startObject(13);
+  builder.startObject(14);
 };
 
 /**
@@ -557,6 +576,14 @@ static addVer(builder:flatbuffers.Builder, VerOffset:flatbuffers.Offset) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} AuthOffset
+ */
+static addAuth(builder:flatbuffers.Builder, AuthOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(13, AuthOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 static endImq (builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -570,6 +597,355 @@ static endImq (builder:flatbuffers.Builder):flatbuffers.Offset {
  */
 static finishImqBuffer(builder:flatbuffers.Builder, offset:flatbuffers.Offset) {
   builder.finish(offset, '0001');
+};
+
+}
+}
+/**
+ * @constructor
+ */
+export namespace IndisMQ{
+export class Auth {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  bb: flatbuffers.ByteBuffer= null;
+
+  /**
+   * @type {number}
+   */
+  bb_pos:number = 0;
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {Auth}
+ */
+__init(i:number, bb:flatbuffers.ByteBuffer):Auth {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {Auth=} obj
+ * @returns {Auth}
+ */
+static getRootAsAuth(bb:flatbuffers.ByteBuffer, obj?:Auth):Auth {
+  return (obj || new Auth).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+User():string
+User(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+User(optionalEncoding?:any):string|Uint8Array {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+Pass():string
+Pass(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+Pass(optionalEncoding?:any):string|Uint8Array {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+Token():string
+Token(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+Token(optionalEncoding?:any):string|Uint8Array {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+Domain():string
+Domain(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+Domain(optionalEncoding?:any):string|Uint8Array {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @returns {boolean}
+ */
+Required():boolean {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @param {boolean} value
+ * @returns {boolean}
+ */
+mutate_Required(value:boolean):boolean {
+  var offset = this.bb.__offset(this.bb_pos, 12)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, +value);
+  return true;
+}
+
+/**
+ * @returns {flatbuffers.Long}
+ */
+Timestamp():flatbuffers.Long {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
+};
+
+/**
+ * @param {flatbuffers.Long} value
+ * @returns {boolean}
+ */
+mutate_Timestamp(value:flatbuffers.Long):boolean {
+  var offset = this.bb.__offset(this.bb_pos, 14)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt64(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+Nonce():string
+Nonce(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+Nonce(optionalEncoding?:any):string|Uint8Array {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {number} index
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+Ciphers(index: number):string
+Ciphers(index: number,optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+Ciphers(index: number,optionalEncoding?:any):string|Uint8Array {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+CiphersLength():number {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+Alg():string
+Alg(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+Alg(optionalEncoding?:any):string|Uint8Array {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @returns {IndisMQ.AuthErr}
+ */
+Err():IndisMQ.AuthErr {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? /** @type {IndisMQ.AuthErr} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.AuthErr.NONE;
+};
+
+/**
+ * @param {IndisMQ.AuthErr} value
+ * @returns {boolean}
+ */
+mutate_Err(value:IndisMQ.AuthErr):boolean {
+  var offset = this.bb.__offset(this.bb_pos, 22)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+ErrMsg():string
+ErrMsg(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+ErrMsg(optionalEncoding?:any):string|Uint8Array {
+  var offset = this.bb.__offset(this.bb_pos, 24);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+Msg():string
+Msg(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+Msg(optionalEncoding?:any):string|Uint8Array {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+static startAuth(builder:flatbuffers.Builder) {
+  builder.startObject(12);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} UserOffset
+ */
+static addUser(builder:flatbuffers.Builder, UserOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, UserOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} PassOffset
+ */
+static addPass(builder:flatbuffers.Builder, PassOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, PassOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} TokenOffset
+ */
+static addToken(builder:flatbuffers.Builder, TokenOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, TokenOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} DomainOffset
+ */
+static addDomain(builder:flatbuffers.Builder, DomainOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(3, DomainOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} Required
+ */
+static addRequired(builder:flatbuffers.Builder, Required:boolean) {
+  builder.addFieldInt8(4, +Required, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Long} Timestamp
+ */
+static addTimestamp(builder:flatbuffers.Builder, Timestamp:flatbuffers.Long) {
+  builder.addFieldInt64(5, Timestamp, builder.createLong(0, 0));
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} NonceOffset
+ */
+static addNonce(builder:flatbuffers.Builder, NonceOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(6, NonceOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} CiphersOffset
+ */
+static addCiphers(builder:flatbuffers.Builder, CiphersOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(7, CiphersOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+static createCiphersVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+if(!data){
+  return null
+}
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+static startCiphersVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} AlgOffset
+ */
+static addAlg(builder:flatbuffers.Builder, AlgOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(8, AlgOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {IndisMQ.AuthErr} Err
+ */
+static addErr(builder:flatbuffers.Builder, Err:IndisMQ.AuthErr) {
+  builder.addFieldInt8(9, Err, IndisMQ.AuthErr.NONE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} ErrMsgOffset
+ */
+static addErrMsg(builder:flatbuffers.Builder, ErrMsgOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(10, ErrMsgOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} MsgOffset
+ */
+static addMsg(builder:flatbuffers.Builder, MsgOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(11, MsgOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+static endAuth (builder:flatbuffers.Builder):flatbuffers.Offset {
+  var offset = builder.endObject();
+  return offset;
 };
 
 }
