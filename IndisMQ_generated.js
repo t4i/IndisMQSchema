@@ -110,41 +110,11 @@ IndisMQ.Ver.prototype.Major = function() {
 };
 
 /**
- * @param {number} value
- * @returns {boolean}
- */
-IndisMQ.Ver.prototype.mutate_Major = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 0)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
-
-/**
  * @returns {number}
  */
 IndisMQ.Ver.prototype.Minor = function() {
   return this.bb.readInt8(this.bb_pos + 1);
 };
-
-/**
- * @param {number} value
- * @returns {boolean}
- */
-IndisMQ.Ver.prototype.mutate_Minor = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 1)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
 
 /**
  * @param {flatbuffers.Builder} builder
@@ -254,42 +224,12 @@ IndisMQ.Imq.prototype.Broker = function() {
 };
 
 /**
- * @param {boolean} value
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.mutate_Broker = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 10)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, +value);
-  return true;
-}
-
-/**
  * @returns {IndisMQ.Cmd}
  */
 IndisMQ.Imq.prototype.Cmd = function() {
   var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? /** @type {IndisMQ.Cmd} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.Cmd.NONE;
 };
-
-/**
- * @param {IndisMQ.Cmd} value
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.mutate_Cmd = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 12)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
 
 /**
  * @param {flatbuffers.Encoding=} optionalEncoding
@@ -309,42 +249,12 @@ IndisMQ.Imq.prototype.MsgType = function() {
 };
 
 /**
- * @param {IndisMQ.MsgType} value
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.mutate_MsgType = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 16)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
-
-/**
  * @returns {IndisMQ.Sts}
  */
 IndisMQ.Imq.prototype.Sts = function() {
   var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? /** @type {IndisMQ.Sts} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.Sts.NONE;
 };
-
-/**
- * @param {IndisMQ.Sts} value
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.mutate_Sts = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 18)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
 
 /**
  * @param {flatbuffers.Encoding=} optionalEncoding
@@ -364,21 +274,6 @@ IndisMQ.Imq.prototype.Err = function() {
 };
 
 /**
- * @param {IndisMQ.Err} value
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.mutate_Err = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 22)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
-
-/**
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
@@ -394,21 +289,6 @@ IndisMQ.Imq.prototype.Callback = function() {
   var offset = this.bb.__offset(this.bb_pos, 26);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
-
-/**
- * @param {boolean} value
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.mutate_Callback = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 26)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, +value);
-  return true;
-}
 
 /**
  * @param {IndisMQ.Ver=} obj
@@ -682,42 +562,12 @@ IndisMQ.Auth.prototype.Required = function() {
 };
 
 /**
- * @param {boolean} value
- * @returns {boolean}
- */
-IndisMQ.Auth.prototype.mutate_Required = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 12)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, +value);
-  return true;
-}
-
-/**
  * @returns {flatbuffers.Long}
  */
 IndisMQ.Auth.prototype.Timestamp = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
 };
-
-/**
- * @param {flatbuffers.Long} value
- * @returns {boolean}
- */
-IndisMQ.Auth.prototype.mutate_Timestamp = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 14)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt64(this.bb_pos + offset, value);
-  return true;
-}
 
 /**
  * @param {flatbuffers.Encoding=} optionalEncoding
@@ -762,21 +612,6 @@ IndisMQ.Auth.prototype.Err = function() {
   var offset = this.bb.__offset(this.bb_pos, 22);
   return offset ? /** @type {IndisMQ.AuthErr} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.AuthErr.NONE;
 };
-
-/**
- * @param {IndisMQ.AuthErr} value
- * @returns {boolean}
- */
-IndisMQ.Auth.prototype.mutate_Err = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 22)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
 
 /**
  * @param {flatbuffers.Encoding=} optionalEncoding
