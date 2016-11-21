@@ -429,10 +429,19 @@ IndisMQ.Imq.prototype.Auth = function(obj) {
 };
 
 /**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Imq.prototype.User = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 32);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 IndisMQ.Imq.startImq = function(builder) {
-  builder.startObject(14);
+  builder.startObject(15);
 };
 
 /**
@@ -566,6 +575,14 @@ IndisMQ.Imq.addVer = function(builder, VerOffset) {
  */
 IndisMQ.Imq.addAuth = function(builder, AuthOffset) {
   builder.addFieldOffset(13, AuthOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} UserOffset
+ */
+IndisMQ.Imq.addUser = function(builder, UserOffset) {
+  builder.addFieldOffset(14, UserOffset, 0);
 };
 
 /**

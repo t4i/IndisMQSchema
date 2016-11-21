@@ -15,14 +15,14 @@ struct ImqT;
 struct Auth;
 struct AuthT;
 
-enum class MsgType : int8_t {
-  NONE = 0,
-  SINGLE = 1,
-  CAST = 2,
-  QUEUE = 3,
-  CMD = 4,
-  MIN = NONE,
-  MAX = CMD
+enum MsgType {
+  MsgType_NONE = 0,
+  MsgType_SINGLE = 1,
+  MsgType_CAST = 2,
+  MsgType_QUEUE = 3,
+  MsgType_CMD = 4,
+  MsgType_MIN = MsgType_NONE,
+  MsgType_MAX = MsgType_CMD
 };
 
 inline const char **EnumNamesMsgType() {
@@ -32,17 +32,17 @@ inline const char **EnumNamesMsgType() {
 
 inline const char *EnumNameMsgType(MsgType e) { return EnumNamesMsgType()[static_cast<int>(e)]; }
 
-enum class Action : int8_t {
-  NONE = 0,
-  GET = 1,
-  SET = 2,
-  NEW = 3,
-  APPEND = 4,
-  REPLACE = 5,
-  UPDATE = 6,
-  DELETE = 7,
-  MIN = NONE,
-  MAX = DELETE
+enum Action {
+  Action_NONE = 0,
+  Action_GET = 1,
+  Action_SET = 2,
+  Action_NEW = 3,
+  Action_APPEND = 4,
+  Action_REPLACE = 5,
+  Action_UPDATE = 6,
+  Action_DELETE = 7,
+  Action_MIN = Action_NONE,
+  Action_MAX = Action_DELETE
 };
 
 inline const char **EnumNamesAction() {
@@ -52,14 +52,14 @@ inline const char **EnumNamesAction() {
 
 inline const char *EnumNameAction(Action e) { return EnumNamesAction()[static_cast<int>(e)]; }
 
-enum class Cmd : int8_t {
-  NONE = 0,
-  SUB = 1,
-  UNSUB = 2,
-  SYN = 3,
-  READY = 4,
-  MIN = NONE,
-  MAX = READY
+enum Cmd {
+  Cmd_NONE = 0,
+  Cmd_SUB = 1,
+  Cmd_UNSUB = 2,
+  Cmd_SYN = 3,
+  Cmd_READY = 4,
+  Cmd_MIN = Cmd_NONE,
+  Cmd_MAX = Cmd_READY
 };
 
 inline const char **EnumNamesCmd() {
@@ -69,17 +69,17 @@ inline const char **EnumNamesCmd() {
 
 inline const char *EnumNameCmd(Cmd e) { return EnumNamesCmd()[static_cast<int>(e)]; }
 
-enum class Sts : int8_t {
-  NONE = 0,
-  ERROR = 1,
-  REQ = 2,
-  REP = 3,
-  SEQ = 4,
-  CANCEL = 5,
-  SUCCESS = 6,
-  ACK = 7,
-  MIN = NONE,
-  MAX = ACK
+enum Sts {
+  Sts_NONE = 0,
+  Sts_ERROR = 1,
+  Sts_REQ = 2,
+  Sts_REP = 3,
+  Sts_SEQ = 4,
+  Sts_CANCEL = 5,
+  Sts_SUCCESS = 6,
+  Sts_ACK = 7,
+  Sts_MIN = Sts_NONE,
+  Sts_MAX = Sts_ACK
 };
 
 inline const char **EnumNamesSts() {
@@ -89,14 +89,14 @@ inline const char **EnumNamesSts() {
 
 inline const char *EnumNameSts(Sts e) { return EnumNamesSts()[static_cast<int>(e)]; }
 
-enum class Err : int8_t {
-  NONE = 0,
-  NO_HANDLER = 1,
-  INVALID = 2,
-  REMOTE = 3,
-  TIMEOUT = 4,
-  MIN = NONE,
-  MAX = TIMEOUT
+enum Err {
+  Err_NONE = 0,
+  Err_NO_HANDLER = 1,
+  Err_INVALID = 2,
+  Err_REMOTE = 3,
+  Err_TIMEOUT = 4,
+  Err_MIN = Err_NONE,
+  Err_MAX = Err_TIMEOUT
 };
 
 inline const char **EnumNamesErr() {
@@ -106,12 +106,12 @@ inline const char **EnumNamesErr() {
 
 inline const char *EnumNameErr(Err e) { return EnumNamesErr()[static_cast<int>(e)]; }
 
-enum class AuthErr : int8_t {
-  NONE = 0,
-  INVALID = 1,
-  UNAUTHORIZED = 2,
-  MIN = NONE,
-  MAX = UNAUTHORIZED
+enum AuthErr {
+  AuthErr_NONE = 0,
+  AuthErr_INVALID = 1,
+  AuthErr_UNAUTHORIZED = 2,
+  AuthErr_MIN = AuthErr_NONE,
+  AuthErr_MAX = AuthErr_UNAUTHORIZED
 };
 
 inline const char **EnumNamesAuthErr() {
@@ -154,6 +154,7 @@ struct ImqT : public flatbuffers::NativeTable {
   bool Callback;
   std::unique_ptr<Ver> Ver;
   std::unique_ptr<AuthT> Auth;
+  std::string User;
 };
 
 struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
@@ -171,7 +172,8 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_STSMSG = 24,
     VT_CALLBACK = 26,
     VT_VER = 28,
-    VT_AUTH = 30
+    VT_AUTH = 30,
+    VT_USER = 32
   };
   const flatbuffers::Vector<uint8_t> *Body() const { return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_BODY); }
   flatbuffers::Vector<uint8_t> *mutable_Body() { return GetPointer<flatbuffers::Vector<uint8_t> *>(VT_BODY); }
@@ -181,26 +183,28 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   flatbuffers::String *mutable_To() { return GetPointer<flatbuffers::String *>(VT_TO); }
   bool Broker() const { return GetField<uint8_t>(VT_BROKER, 0) != 0; }
   bool mutate_Broker(bool _Broker) { return SetField(VT_BROKER, static_cast<uint8_t>(_Broker)); }
-  IndisMQ::Cmd Cmd() const { return static_cast<IndisMQ::Cmd>(GetField<int8_t>(VT_CMD, 0)); }
-  bool mutate_Cmd(IndisMQ::Cmd _Cmd) { return SetField(VT_CMD, static_cast<int8_t>(_Cmd)); }
+  Cmd Cmd() const { return static_cast<Cmd>(GetField<int8_t>(VT_CMD, 0)); }
+  bool mutate_Cmd(Cmd _Cmd) { return SetField(VT_CMD, static_cast<int8_t>(_Cmd)); }
   const flatbuffers::String *MsgId() const { return GetPointer<const flatbuffers::String *>(VT_MSGID); }
   flatbuffers::String *mutable_MsgId() { return GetPointer<flatbuffers::String *>(VT_MSGID); }
-  IndisMQ::MsgType MsgType() const { return static_cast<IndisMQ::MsgType>(GetField<int8_t>(VT_MSGTYPE, 0)); }
-  bool mutate_MsgType(IndisMQ::MsgType _MsgType) { return SetField(VT_MSGTYPE, static_cast<int8_t>(_MsgType)); }
-  IndisMQ::Sts Sts() const { return static_cast<IndisMQ::Sts>(GetField<int8_t>(VT_STS, 0)); }
-  bool mutate_Sts(IndisMQ::Sts _Sts) { return SetField(VT_STS, static_cast<int8_t>(_Sts)); }
+  MsgType MsgType() const { return static_cast<MsgType>(GetField<int8_t>(VT_MSGTYPE, 0)); }
+  bool mutate_MsgType(MsgType _MsgType) { return SetField(VT_MSGTYPE, static_cast<int8_t>(_MsgType)); }
+  Sts Sts() const { return static_cast<Sts>(GetField<int8_t>(VT_STS, 0)); }
+  bool mutate_Sts(Sts _Sts) { return SetField(VT_STS, static_cast<int8_t>(_Sts)); }
   const flatbuffers::String *Path() const { return GetPointer<const flatbuffers::String *>(VT_PATH); }
   flatbuffers::String *mutable_Path() { return GetPointer<flatbuffers::String *>(VT_PATH); }
-  IndisMQ::Err Err() const { return static_cast<IndisMQ::Err>(GetField<int8_t>(VT_ERR, 0)); }
-  bool mutate_Err(IndisMQ::Err _Err) { return SetField(VT_ERR, static_cast<int8_t>(_Err)); }
+  Err Err() const { return static_cast<Err>(GetField<int8_t>(VT_ERR, 0)); }
+  bool mutate_Err(Err _Err) { return SetField(VT_ERR, static_cast<int8_t>(_Err)); }
   const flatbuffers::String *StsMsg() const { return GetPointer<const flatbuffers::String *>(VT_STSMSG); }
   flatbuffers::String *mutable_StsMsg() { return GetPointer<flatbuffers::String *>(VT_STSMSG); }
   bool Callback() const { return GetField<uint8_t>(VT_CALLBACK, 0) != 0; }
   bool mutate_Callback(bool _Callback) { return SetField(VT_CALLBACK, static_cast<uint8_t>(_Callback)); }
-  const IndisMQ::Ver *Ver() const { return GetStruct<const IndisMQ::Ver *>(VT_VER); }
-  IndisMQ::Ver *mutable_Ver() { return GetStruct<IndisMQ::Ver *>(VT_VER); }
-  const IndisMQ::Auth *Auth() const { return GetPointer<const IndisMQ::Auth *>(VT_AUTH); }
-  IndisMQ::Auth *mutable_Auth() { return GetPointer<IndisMQ::Auth *>(VT_AUTH); }
+  const Ver *Ver() const { return GetStruct<const Ver *>(VT_VER); }
+  Ver *mutable_Ver() { return GetStruct<Ver *>(VT_VER); }
+  const Auth *Auth() const { return GetPointer<const Auth *>(VT_AUTH); }
+  Auth *mutable_Auth() { return GetPointer<Auth *>(VT_AUTH); }
+  const flatbuffers::String *User() const { return GetPointer<const flatbuffers::String *>(VT_USER); }
+  flatbuffers::String *mutable_User() { return GetPointer<flatbuffers::String *>(VT_USER); }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<flatbuffers::uoffset_t>(verifier, VT_BODY) &&
@@ -221,9 +225,11 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<flatbuffers::uoffset_t>(verifier, VT_STSMSG) &&
            verifier.Verify(StsMsg()) &&
            VerifyField<uint8_t>(verifier, VT_CALLBACK) &&
-           VerifyField<IndisMQ::Ver>(verifier, VT_VER) &&
+           VerifyField<Ver>(verifier, VT_VER) &&
            VerifyField<flatbuffers::uoffset_t>(verifier, VT_AUTH) &&
            verifier.VerifyTable(Auth()) &&
+           VerifyField<flatbuffers::uoffset_t>(verifier, VT_USER) &&
+           verifier.Verify(User()) &&
            verifier.EndTable();
   }
   ImqT *UnPack(const flatbuffers::resolver_function_t *resolver = nullptr) const;
@@ -246,10 +252,11 @@ struct ImqBuilder {
   void add_Callback(bool Callback) { fbb_.AddElement<uint8_t>(Imq::VT_CALLBACK, static_cast<uint8_t>(Callback), 0); }
   void add_Ver(const Ver *Ver) { fbb_.AddStruct(Imq::VT_VER, Ver); }
   void add_Auth(flatbuffers::Offset<Auth> Auth) { fbb_.AddOffset(Imq::VT_AUTH, Auth); }
+  void add_User(flatbuffers::Offset<flatbuffers::String> User) { fbb_.AddOffset(Imq::VT_USER, User); }
   ImqBuilder(flatbuffers::FlatBufferBuilder &_fbb) : fbb_(_fbb) { start_ = fbb_.StartTable(); }
   ImqBuilder &operator=(const ImqBuilder &);
   flatbuffers::Offset<Imq> Finish() {
-    auto o = flatbuffers::Offset<Imq>(fbb_.EndTable(start_, 14));
+    auto o = flatbuffers::Offset<Imq>(fbb_.EndTable(start_, 15));
     return o;
   }
 };
@@ -259,17 +266,19 @@ inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::String> From = 0,
     flatbuffers::Offset<flatbuffers::String> To = 0,
     bool Broker = false,
-    Cmd Cmd = Cmd::NONE,
+    Cmd Cmd = Cmd_NONE,
     flatbuffers::Offset<flatbuffers::String> MsgId = 0,
-    MsgType MsgType = MsgType::NONE,
-    Sts Sts = Sts::NONE,
+    MsgType MsgType = MsgType_NONE,
+    Sts Sts = Sts_NONE,
     flatbuffers::Offset<flatbuffers::String> Path = 0,
-    Err Err = Err::NONE,
+    Err Err = Err_NONE,
     flatbuffers::Offset<flatbuffers::String> StsMsg = 0,
     bool Callback = false,
     const Ver *Ver = 0,
-    flatbuffers::Offset<Auth> Auth = 0) {
+    flatbuffers::Offset<Auth> Auth = 0,
+    flatbuffers::Offset<flatbuffers::String> User = 0) {
   ImqBuilder builder_(_fbb);
+  builder_.add_User(User);
   builder_.add_Auth(Auth);
   builder_.add_Ver(Ver);
   builder_.add_StsMsg(StsMsg);
@@ -292,17 +301,18 @@ inline flatbuffers::Offset<Imq> CreateImqDirect(flatbuffers::FlatBufferBuilder &
     const char *From = nullptr,
     const char *To = nullptr,
     bool Broker = false,
-    Cmd Cmd = Cmd::NONE,
+    Cmd Cmd = Cmd_NONE,
     const char *MsgId = nullptr,
-    MsgType MsgType = MsgType::NONE,
-    Sts Sts = Sts::NONE,
+    MsgType MsgType = MsgType_NONE,
+    Sts Sts = Sts_NONE,
     const char *Path = nullptr,
-    Err Err = Err::NONE,
+    Err Err = Err_NONE,
     const char *StsMsg = nullptr,
     bool Callback = false,
     const Ver *Ver = 0,
-    flatbuffers::Offset<Auth> Auth = 0) {
-  return CreateImq(_fbb, Body ? _fbb.CreateVector<uint8_t>(*Body) : 0, From ? _fbb.CreateString(From) : 0, To ? _fbb.CreateString(To) : 0, Broker, Cmd, MsgId ? _fbb.CreateString(MsgId) : 0, MsgType, Sts, Path ? _fbb.CreateString(Path) : 0, Err, StsMsg ? _fbb.CreateString(StsMsg) : 0, Callback, Ver, Auth);
+    flatbuffers::Offset<Auth> Auth = 0,
+    const char *User = nullptr) {
+  return CreateImq(_fbb, Body ? _fbb.CreateVector<uint8_t>(*Body) : 0, From ? _fbb.CreateString(From) : 0, To ? _fbb.CreateString(To) : 0, Broker, Cmd, MsgId ? _fbb.CreateString(MsgId) : 0, MsgType, Sts, Path ? _fbb.CreateString(Path) : 0, Err, StsMsg ? _fbb.CreateString(StsMsg) : 0, Callback, Ver, Auth, User ? _fbb.CreateString(User) : 0);
 }
 
 inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb, const ImqT *_o, const flatbuffers::rehasher_function_t *rehasher = nullptr);
@@ -423,7 +433,7 @@ inline flatbuffers::Offset<Auth> CreateAuth(flatbuffers::FlatBufferBuilder &_fbb
     flatbuffers::Offset<flatbuffers::String> Nonce = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> Ciphers = 0,
     flatbuffers::Offset<flatbuffers::String> Alg = 0,
-    AuthErr Err = AuthErr::NONE,
+    AuthErr Err = AuthErr_NONE,
     flatbuffers::Offset<flatbuffers::String> ErrMsg = 0,
     flatbuffers::Offset<flatbuffers::String> Msg = 0) {
   AuthBuilder builder_(_fbb);
@@ -452,7 +462,7 @@ inline flatbuffers::Offset<Auth> CreateAuthDirect(flatbuffers::FlatBufferBuilder
     const char *Nonce = nullptr,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *Ciphers = nullptr,
     const char *Alg = nullptr,
-    AuthErr Err = AuthErr::NONE,
+    AuthErr Err = AuthErr_NONE,
     const char *ErrMsg = nullptr,
     const char *Msg = nullptr) {
   return CreateAuth(_fbb, User ? _fbb.CreateString(User) : 0, Pass ? _fbb.CreateString(Pass) : 0, Token ? _fbb.CreateString(Token) : 0, Domain ? _fbb.CreateString(Domain) : 0, Required, Timestamp, Nonce ? _fbb.CreateString(Nonce) : 0, Ciphers ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*Ciphers) : 0, Alg ? _fbb.CreateString(Alg) : 0, Err, ErrMsg ? _fbb.CreateString(ErrMsg) : 0, Msg ? _fbb.CreateString(Msg) : 0);
@@ -475,8 +485,9 @@ inline ImqT *Imq::UnPack(const flatbuffers::resolver_function_t *resolver) const
   { auto _e = Err(); _o->Err = _e; };
   { auto _e = StsMsg(); if (_e) _o->StsMsg = _e->str(); };
   { auto _e = Callback(); _o->Callback = _e; };
-  { auto _e = Ver(); if (_e) _o->Ver = std::unique_ptr<IndisMQ::Ver>(new IndisMQ::Ver(*_e)); };
+  { auto _e = Ver(); if (_e) _o->Ver = std::unique_ptr<Ver>(new Ver(*_e)); };
   { auto _e = Auth(); if (_e) _o->Auth = std::unique_ptr<AuthT>(_e->UnPack(resolver)); };
+  { auto _e = User(); if (_e) _o->User = _e->str(); };
   return _o;
 }
 
@@ -496,7 +507,8 @@ inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb, 
     _o->StsMsg.size() ? _fbb.CreateString(_o->StsMsg) : 0,
     _o->Callback,
     _o->Ver ? _o->Ver.get() : 0,
-    _o->Auth ? CreateAuth(_fbb, _o->Auth.get(), rehasher) : 0);
+    _o->Auth ? CreateAuth(_fbb, _o->Auth.get(), rehasher) : 0,
+    _o->User.size() ? _fbb.CreateString(_o->User) : 0);
 }
 
 inline AuthT *Auth::UnPack(const flatbuffers::resolver_function_t *resolver) const {

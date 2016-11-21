@@ -64,6 +64,7 @@ table Imq{
     Callback:bool;
     Ver:Ver;
     Auth:Auth;
+    User:string;
 }
 
 table Auth{
