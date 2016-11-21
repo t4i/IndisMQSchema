@@ -172,16 +172,8 @@ func (rcv *Imq) Ver(obj *Ver) *Ver {
 	return nil
 }
 
-func (rcv *Imq) User() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
 func (rcv *Imq) Auth(obj *Auth) *Auth {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
 		if obj == nil {
@@ -194,7 +186,7 @@ func (rcv *Imq) Auth(obj *Auth) *Auth {
 }
 
 func ImqStart(builder *flatbuffers.Builder) {
-	builder.StartObject(15)
+	builder.StartObject(14)
 }
 func ImqAddBody(builder *flatbuffers.Builder, Body flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(Body), 0)
@@ -238,11 +230,8 @@ func ImqAddCallback(builder *flatbuffers.Builder, Callback byte) {
 func ImqAddVer(builder *flatbuffers.Builder, Ver flatbuffers.UOffsetT) {
 	builder.PrependStructSlot(12, flatbuffers.UOffsetT(Ver), 0)
 }
-func ImqAddUser(builder *flatbuffers.Builder, User flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(13, flatbuffers.UOffsetT(User), 0)
-}
 func ImqAddAuth(builder *flatbuffers.Builder, Auth flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(14, flatbuffers.UOffsetT(Auth), 0)
+	builder.PrependUOffsetTSlot(13, flatbuffers.UOffsetT(Auth), 0)
 }
 func ImqEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
