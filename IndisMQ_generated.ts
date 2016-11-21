@@ -431,11 +431,22 @@ Ver(obj?:IndisMQ.Ver):IndisMQ.Ver {
 };
 
 /**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+User():string
+User(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
+User(optionalEncoding?:any):string|Uint8Array {
+  var offset = this.bb.__offset(this.bb_pos, 30);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
  * @param {IndisMQ.Auth=} obj
  * @returns {IndisMQ.Auth}
  */
 Auth(obj?:IndisMQ.Auth):IndisMQ.Auth {
-  var offset = this.bb.__offset(this.bb_pos, 30);
+  var offset = this.bb.__offset(this.bb_pos, 32);
   return offset ? (obj || new IndisMQ.Auth).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
@@ -443,7 +454,7 @@ Auth(obj?:IndisMQ.Auth):IndisMQ.Auth {
  * @param {flatbuffers.Builder} builder
  */
 static startImq(builder:flatbuffers.Builder) {
-  builder.startObject(14);
+  builder.startObject(15);
 };
 
 /**
@@ -576,10 +587,18 @@ static addVer(builder:flatbuffers.Builder, VerOffset:flatbuffers.Offset) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} UserOffset
+ */
+static addUser(builder:flatbuffers.Builder, UserOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(13, UserOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} AuthOffset
  */
 static addAuth(builder:flatbuffers.Builder, AuthOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(13, AuthOffset, 0);
+  builder.addFieldOffset(14, AuthOffset, 0);
 };
 
 /**
