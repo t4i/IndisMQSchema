@@ -13,14 +13,14 @@ struct Imq;
 
 struct Auth;
 
-enum class MsgType : int8_t {
-  NONE = 0,
-  SINGLE = 1,
-  CAST = 2,
-  QUEUE = 3,
-  CMD = 4,
-  MIN = NONE,
-  MAX = CMD
+enum MsgType {
+  MsgType_NONE = 0,
+  MsgType_SINGLE = 1,
+  MsgType_CAST = 2,
+  MsgType_QUEUE = 3,
+  MsgType_CMD = 4,
+  MsgType_MIN = MsgType_NONE,
+  MsgType_MAX = MsgType_CMD
 };
 
 inline const char **EnumNamesMsgType() {
@@ -30,17 +30,17 @@ inline const char **EnumNamesMsgType() {
 
 inline const char *EnumNameMsgType(MsgType e) { return EnumNamesMsgType()[static_cast<int>(e)]; }
 
-enum class Action : int8_t {
-  NONE = 0,
-  GET = 1,
-  SET = 2,
-  NEW = 3,
-  APPEND = 4,
-  REPLACE = 5,
-  UPDATE = 6,
-  DELETE = 7,
-  MIN = NONE,
-  MAX = DELETE
+enum Action {
+  Action_NONE = 0,
+  Action_GET = 1,
+  Action_SET = 2,
+  Action_NEW = 3,
+  Action_APPEND = 4,
+  Action_REPLACE = 5,
+  Action_UPDATE = 6,
+  Action_DELETE = 7,
+  Action_MIN = Action_NONE,
+  Action_MAX = Action_DELETE
 };
 
 inline const char **EnumNamesAction() {
@@ -50,14 +50,14 @@ inline const char **EnumNamesAction() {
 
 inline const char *EnumNameAction(Action e) { return EnumNamesAction()[static_cast<int>(e)]; }
 
-enum class Cmd : int8_t {
-  NONE = 0,
-  SUB = 1,
-  UNSUB = 2,
-  SYN = 3,
-  READY = 4,
-  MIN = NONE,
-  MAX = READY
+enum Cmd {
+  Cmd_NONE = 0,
+  Cmd_SUB = 1,
+  Cmd_UNSUB = 2,
+  Cmd_SYN = 3,
+  Cmd_READY = 4,
+  Cmd_MIN = Cmd_NONE,
+  Cmd_MAX = Cmd_READY
 };
 
 inline const char **EnumNamesCmd() {
@@ -67,17 +67,17 @@ inline const char **EnumNamesCmd() {
 
 inline const char *EnumNameCmd(Cmd e) { return EnumNamesCmd()[static_cast<int>(e)]; }
 
-enum class Sts : int8_t {
-  NONE = 0,
-  ERROR = 1,
-  REQ = 2,
-  REP = 3,
-  SEQ = 4,
-  CANCEL = 5,
-  SUCCESS = 6,
-  ACK = 7,
-  MIN = NONE,
-  MAX = ACK
+enum Sts {
+  Sts_NONE = 0,
+  Sts_ERROR = 1,
+  Sts_REQ = 2,
+  Sts_REP = 3,
+  Sts_SEQ = 4,
+  Sts_CANCEL = 5,
+  Sts_SUCCESS = 6,
+  Sts_ACK = 7,
+  Sts_MIN = Sts_NONE,
+  Sts_MAX = Sts_ACK
 };
 
 inline const char **EnumNamesSts() {
@@ -87,14 +87,14 @@ inline const char **EnumNamesSts() {
 
 inline const char *EnumNameSts(Sts e) { return EnumNamesSts()[static_cast<int>(e)]; }
 
-enum class Err : int8_t {
-  NONE = 0,
-  NO_HANDLER = 1,
-  INVALID = 2,
-  REMOTE = 3,
-  TIMEOUT = 4,
-  MIN = NONE,
-  MAX = TIMEOUT
+enum Err {
+  Err_NONE = 0,
+  Err_NO_HANDLER = 1,
+  Err_INVALID = 2,
+  Err_REMOTE = 3,
+  Err_TIMEOUT = 4,
+  Err_MIN = Err_NONE,
+  Err_MAX = Err_TIMEOUT
 };
 
 inline const char **EnumNamesErr() {
@@ -104,12 +104,12 @@ inline const char **EnumNamesErr() {
 
 inline const char *EnumNameErr(Err e) { return EnumNamesErr()[static_cast<int>(e)]; }
 
-enum class AuthErr : int8_t {
-  NONE = 0,
-  INVALID = 1,
-  UNAUTHORIZED = 2,
-  MIN = NONE,
-  MAX = UNAUTHORIZED
+enum AuthErr {
+  AuthErr_NONE = 0,
+  AuthErr_INVALID = 1,
+  AuthErr_UNAUTHORIZED = 2,
+  AuthErr_MIN = AuthErr_NONE,
+  AuthErr_MAX = AuthErr_UNAUTHORIZED
 };
 
 inline const char **EnumNamesAuthErr() {
@@ -228,12 +228,12 @@ inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::String> From = 0,
     flatbuffers::Offset<flatbuffers::String> To = 0,
     bool Broker = false,
-    Cmd Cmd = Cmd::NONE,
+    Cmd Cmd = Cmd_NONE,
     flatbuffers::Offset<flatbuffers::String> MsgId = 0,
-    MsgType MsgType = MsgType::NONE,
-    Sts Sts = Sts::NONE,
+    MsgType MsgType = MsgType_NONE,
+    Sts Sts = Sts_NONE,
     flatbuffers::Offset<flatbuffers::String> Path = 0,
-    Err Err = Err::NONE,
+    Err Err = Err_NONE,
     flatbuffers::Offset<flatbuffers::String> StsMsg = 0,
     bool Callback = false,
     const Ver *Ver = 0,
@@ -263,12 +263,12 @@ inline flatbuffers::Offset<Imq> CreateImqDirect(flatbuffers::FlatBufferBuilder &
     const char *From = nullptr,
     const char *To = nullptr,
     bool Broker = false,
-    Cmd Cmd = Cmd::NONE,
+    Cmd Cmd = Cmd_NONE,
     const char *MsgId = nullptr,
-    MsgType MsgType = MsgType::NONE,
-    Sts Sts = Sts::NONE,
+    MsgType MsgType = MsgType_NONE,
+    Sts Sts = Sts_NONE,
     const char *Path = nullptr,
-    Err Err = Err::NONE,
+    Err Err = Err_NONE,
     const char *StsMsg = nullptr,
     bool Callback = false,
     const Ver *Ver = 0,
@@ -365,7 +365,7 @@ inline flatbuffers::Offset<Auth> CreateAuth(flatbuffers::FlatBufferBuilder &_fbb
     flatbuffers::Offset<flatbuffers::String> Nonce = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> Ciphers = 0,
     flatbuffers::Offset<flatbuffers::String> Alg = 0,
-    AuthErr Err = AuthErr::NONE,
+    AuthErr Err = AuthErr_NONE,
     flatbuffers::Offset<flatbuffers::String> ErrMsg = 0,
     flatbuffers::Offset<flatbuffers::String> Msg = 0) {
   AuthBuilder builder_(_fbb);
@@ -394,7 +394,7 @@ inline flatbuffers::Offset<Auth> CreateAuthDirect(flatbuffers::FlatBufferBuilder
     const char *Nonce = nullptr,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *Ciphers = nullptr,
     const char *Alg = nullptr,
-    AuthErr Err = AuthErr::NONE,
+    AuthErr Err = AuthErr_NONE,
     const char *ErrMsg = nullptr,
     const char *Msg = nullptr) {
   return CreateAuth(_fbb, User ? _fbb.CreateString(User) : 0, Pass ? _fbb.CreateString(Pass) : 0, Token ? _fbb.CreateString(Token) : 0, Domain ? _fbb.CreateString(Domain) : 0, Required, Timestamp, Nonce ? _fbb.CreateString(Nonce) : 0, Ciphers ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*Ciphers) : 0, Alg ? _fbb.CreateString(Alg) : 0, Err, ErrMsg ? _fbb.CreateString(ErrMsg) : 0, Msg ? _fbb.CreateString(Msg) : 0);
