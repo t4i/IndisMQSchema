@@ -15,23 +15,24 @@ struct MetaT;
 
 enum class Action : int8_t {
   GET = 0,
-  SET = 1,
-  NEW = 2,
-  APPEND = 3,
-  REPLACE = 4,
-  UPDATE = 5,
-  DELETE = 6,
-  PUBLISH = 7,
-  SUBSCRIBE = 8,
-  UNSUBSCRIBE = 9,
-  CONNECT = 10,
-  JOIN = 11,
+  RESPONSE = 1,
+  SET = 2,
+  NEW = 3,
+  APPEND = 4,
+  REPLACE = 5,
+  UPDATE = 6,
+  DELETE = 7,
+  PUBLISH = 8,
+  SUBSCRIBE = 9,
+  UNSUBSCRIBE = 10,
+  CONNECT = 11,
+  JOIN = 12,
   MIN = GET,
   MAX = JOIN
 };
 
 inline const char **EnumNamesAction() {
-  static const char *names[] = { "GET", "SET", "NEW", "APPEND", "REPLACE", "UPDATE", "DELETE", "PUBLISH", "SUBSCRIBE", "UNSUBSCRIBE", "CONNECT", "JOIN", nullptr };
+  static const char *names[] = { "GET", "RESPONSE", "SET", "NEW", "APPEND", "REPLACE", "UPDATE", "DELETE", "PUBLISH", "SUBSCRIBE", "UNSUBSCRIBE", "CONNECT", "JOIN", nullptr };
   return names;
 }
 

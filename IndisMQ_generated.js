@@ -11,17 +11,18 @@ var IndisMQ = IndisMQ || {};
  */
 IndisMQ.Action = {
   GET: 0,
-  SET: 1,
-  NEW: 2,
-  APPEND: 3,
-  REPLACE: 4,
-  UPDATE: 5,
-  DELETE: 6,
-  PUBLISH: 7,
-  SUBSCRIBE: 8,
-  UNSUBSCRIBE: 9,
-  CONNECT: 10,
-  JOIN: 11
+  RESPONSE: 1,
+  SET: 2,
+  NEW: 3,
+  APPEND: 4,
+  REPLACE: 5,
+  UPDATE: 6,
+  DELETE: 7,
+  PUBLISH: 8,
+  SUBSCRIBE: 9,
+  UNSUBSCRIBE: 10,
+  CONNECT: 11,
+  JOIN: 12
 };
 
 /**
