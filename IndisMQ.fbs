@@ -8,7 +8,7 @@ CAST: intended for all active subscribers
 QUEUE: intended for one of active subscribers
 CMD: Internal Command send to peer
 */
-enum MsgType:byte{NONE,SINGLE,CAST,QUEUE,CMD}
+enum MsgType:byte{REQ,REP,CAST}
 /* these give additional (optional) information for the receiver similar to http verbs
 Actual meaning is program specific, this is only intent
 GET: retrieve a value
@@ -19,7 +19,7 @@ REPLACE: Replace a value entirely
 UPDATE: Update value with included properties
 DELETE: Delete a value
 */
-enum Action:byte{NONE,GET,SET,NEW,APPEND, REPLACE,UPDATE,DELETE}
+enum Action:byte{GET,SET,NEW,APPEND,REPLACE,UPDATE,DELETE,SUBSCRIBE,UNSUBSCRIBE,CONNECT,JOIN}
 /*these are internal command codes
 SUB: request to subscribe to a path, will be processed automatically and return if a callback is present
 UNSUB: request to be unsubscribed to a path, processed automaticlaly and return success if a callback is present
@@ -27,59 +27,21 @@ SYN: request Syncronization, receiver replies with an ACK that contains client i
 READY: Ready to recieve
 PATHS (future): Returns list of paths receiver has handlers and subscribers for
 */
-enum Cmd:byte{NONE,SUB, UNSUB, SYN, READY}
-/*these also function like http status codes 
-ERROR: Contains an Error Code, 
-REQ: Message Contains a Request, 
-REP: Message contains a Reply, 
-SEQ: Message is part of a Sequence, or Multi Part Messaage
-CANCEL: Cancel the referenced Message
-SUCCESS: Indicates Sucess in a Reply
-ACK: Indicates Acknowledgement (not success) of a message
-*/
-enum Sts:byte{NONE,ERROR,REQ,REP,SEQ,CANCEL, SUCCESS, ACK} 
-
-enum Err:byte{NONE,NO_HANDLER, INVALID, REMOTE, TIMEOUT}
-
-enum AuthErr:byte{NONE,INVALID,UNAUTHORIZED}
-
-
-struct Ver{
-    Major:byte;
-    Minor:byte;
-    }
-
 table Imq{
-    Body:[ubyte];
-    From:string;
-    To:string;
-    Broker:bool;
-    Cmd:Cmd;
     MsgId:string;
     MsgType:MsgType;
-    Sts:Sts;
+    Action:Action;
+    To:string;
+    From:string;
     Path:string;
-    Err:Err;
-    StsMsg:string;
-    Callback:bool;
-    Ver:Ver;
-    Auth:Auth;
-    User:string;
+    Authorization:string;
+    Body:[ubyte];
+    Meta:[Meta];
 }
 
-table Auth{
-	User:string;
-	Pass:string;
-	Token:string;
-	Domain:string;
-	Required:bool;
-	Timestamp:long;
-	Nonce:string;
-	Ciphers:[string];
-	Alg:string;
-	Err:AuthErr;
-	ErrMsg:string;
-	Msg:string;
+table Meta{
+    Key:string(key);
+    Value:string;
 }
 
 root_type Imq;

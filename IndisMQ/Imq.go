@@ -22,8 +22,72 @@ func (rcv *Imq) Init(buf []byte, i flatbuffers.UOffsetT) {
 	rcv._tab.Pos = i
 }
 
-func (rcv *Imq) Body(j int) byte {
+func (rcv *Imq) MsgId() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Imq) MsgType() int8 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.GetInt8(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Imq) MutateMsgType(n int8) bool {
+	return rcv._tab.MutateInt8Slot(6, n)
+}
+
+func (rcv *Imq) Action() int8 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	if o != 0 {
+		return rcv._tab.GetInt8(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Imq) MutateAction(n int8) bool {
+	return rcv._tab.MutateInt8Slot(8, n)
+}
+
+func (rcv *Imq) To() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Imq) From() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Imq) Path() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Imq) Authorization() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Imq) Body(j int) byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
 	if o != 0 {
 		a := rcv._tab.Vector(o)
 		return rcv._tab.GetByte(a + flatbuffers.UOffsetT(j*1))
@@ -32,7 +96,7 @@ func (rcv *Imq) Body(j int) byte {
 }
 
 func (rcv *Imq) BodyLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -40,209 +104,68 @@ func (rcv *Imq) BodyLength() int {
 }
 
 func (rcv *Imq) BodyBytes() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
-func (rcv *Imq) From() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
-func (rcv *Imq) To() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
-func (rcv *Imq) Broker() byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
-	if o != 0 {
-		return rcv._tab.GetByte(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *Imq) MutateBroker(n byte) bool {
-	return rcv._tab.MutateByteSlot(10, n)
-}
-
-func (rcv *Imq) Cmd() int8 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.GetInt8(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *Imq) MutateCmd(n int8) bool {
-	return rcv._tab.MutateInt8Slot(12, n)
-}
-
-func (rcv *Imq) MsgId() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
-func (rcv *Imq) MsgType() int8 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
-	if o != 0 {
-		return rcv._tab.GetInt8(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *Imq) MutateMsgType(n int8) bool {
-	return rcv._tab.MutateInt8Slot(16, n)
-}
-
-func (rcv *Imq) Sts() int8 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
 	if o != 0 {
-		return rcv._tab.GetInt8(o + rcv._tab.Pos)
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
-	return 0
+	return nil
 }
 
-func (rcv *Imq) MutateSts(n int8) bool {
-	return rcv._tab.MutateInt8Slot(18, n)
-}
-
-func (rcv *Imq) Path() []byte {
+func (rcv *Imq) Meta(obj *Meta, j int) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
 	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
 	}
-	return nil
+	return false
 }
 
-func (rcv *Imq) Err() int8 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+func (rcv *Imq) MetaLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
 	if o != 0 {
-		return rcv._tab.GetInt8(o + rcv._tab.Pos)
+		return rcv._tab.VectorLen(o)
 	}
 	return 0
-}
-
-func (rcv *Imq) MutateErr(n int8) bool {
-	return rcv._tab.MutateInt8Slot(22, n)
-}
-
-func (rcv *Imq) StsMsg() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(24))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
-func (rcv *Imq) Callback() byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(26))
-	if o != 0 {
-		return rcv._tab.GetByte(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *Imq) MutateCallback(n byte) bool {
-	return rcv._tab.MutateByteSlot(26, n)
-}
-
-func (rcv *Imq) Ver(obj *Ver) *Ver {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(28))
-	if o != 0 {
-		x := o + rcv._tab.Pos
-		if obj == nil {
-			obj = new(Ver)
-		}
-		obj.Init(rcv._tab.Bytes, x)
-		return obj
-	}
-	return nil
-}
-
-func (rcv *Imq) Auth(obj *Auth) *Auth {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
-	if o != 0 {
-		x := rcv._tab.Indirect(o + rcv._tab.Pos)
-		if obj == nil {
-			obj = new(Auth)
-		}
-		obj.Init(rcv._tab.Bytes, x)
-		return obj
-	}
-	return nil
-}
-
-func (rcv *Imq) User() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
 }
 
 func ImqStart(builder *flatbuffers.Builder) {
-	builder.StartObject(15)
+	builder.StartObject(9)
+}
+func ImqAddMsgId(builder *flatbuffers.Builder, MsgId flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(MsgId), 0)
+}
+func ImqAddMsgType(builder *flatbuffers.Builder, MsgType int8) {
+	builder.PrependInt8Slot(1, MsgType, 0)
+}
+func ImqAddAction(builder *flatbuffers.Builder, Action int8) {
+	builder.PrependInt8Slot(2, Action, 0)
+}
+func ImqAddTo(builder *flatbuffers.Builder, To flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(To), 0)
+}
+func ImqAddFrom(builder *flatbuffers.Builder, From flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(From), 0)
+}
+func ImqAddPath(builder *flatbuffers.Builder, Path flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(Path), 0)
+}
+func ImqAddAuthorization(builder *flatbuffers.Builder, Authorization flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(Authorization), 0)
 }
 func ImqAddBody(builder *flatbuffers.Builder, Body flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(Body), 0)
+	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(Body), 0)
 }
 func ImqStartBodyVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
 }
-func ImqAddFrom(builder *flatbuffers.Builder, From flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(From), 0)
+func ImqAddMeta(builder *flatbuffers.Builder, Meta flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(Meta), 0)
 }
-func ImqAddTo(builder *flatbuffers.Builder, To flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(To), 0)
-}
-func ImqAddBroker(builder *flatbuffers.Builder, Broker byte) {
-	builder.PrependByteSlot(3, Broker, 0)
-}
-func ImqAddCmd(builder *flatbuffers.Builder, Cmd int8) {
-	builder.PrependInt8Slot(4, Cmd, 0)
-}
-func ImqAddMsgId(builder *flatbuffers.Builder, MsgId flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(MsgId), 0)
-}
-func ImqAddMsgType(builder *flatbuffers.Builder, MsgType int8) {
-	builder.PrependInt8Slot(6, MsgType, 0)
-}
-func ImqAddSts(builder *flatbuffers.Builder, Sts int8) {
-	builder.PrependInt8Slot(7, Sts, 0)
-}
-func ImqAddPath(builder *flatbuffers.Builder, Path flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(Path), 0)
-}
-func ImqAddErr(builder *flatbuffers.Builder, Err int8) {
-	builder.PrependInt8Slot(9, Err, 0)
-}
-func ImqAddStsMsg(builder *flatbuffers.Builder, StsMsg flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(10, flatbuffers.UOffsetT(StsMsg), 0)
-}
-func ImqAddCallback(builder *flatbuffers.Builder, Callback byte) {
-	builder.PrependByteSlot(11, Callback, 0)
-}
-func ImqAddVer(builder *flatbuffers.Builder, Ver flatbuffers.UOffsetT) {
-	builder.PrependStructSlot(12, flatbuffers.UOffsetT(Ver), 0)
-}
-func ImqAddAuth(builder *flatbuffers.Builder, Auth flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(13, flatbuffers.UOffsetT(Auth), 0)
-}
-func ImqAddUser(builder *flatbuffers.Builder, User flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(14, flatbuffers.UOffsetT(User), 0)
+func ImqStartMetaVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func ImqEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

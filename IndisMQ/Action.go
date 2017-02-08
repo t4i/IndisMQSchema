@@ -3,18 +3,20 @@
 package IndisMQ
 
 const (
-	ActionNONE = 0
-	ActionGET = 1
-	ActionSET = 2
-	ActionNEW = 3
-	ActionAPPEND = 4
-	ActionREPLACE = 5
-	ActionUPDATE = 6
-	ActionDELETE = 7
+	ActionGET = 0
+	ActionSET = 1
+	ActionNEW = 2
+	ActionAPPEND = 3
+	ActionREPLACE = 4
+	ActionUPDATE = 5
+	ActionDELETE = 6
+	ActionSUBSCRIBE = 7
+	ActionUNSUBSCRIBE = 8
+	ActionCONNECT = 9
+	ActionJOIN = 10
 )
 
 var EnumNamesAction = map[int]string{
-	ActionNONE:"NONE",
 	ActionGET:"GET",
 	ActionSET:"SET",
 	ActionNEW:"NEW",
@@ -22,5 +24,9 @@ var EnumNamesAction = map[int]string{
 	ActionREPLACE:"REPLACE",
 	ActionUPDATE:"UPDATE",
 	ActionDELETE:"DELETE",
+	ActionSUBSCRIBE:"SUBSCRIBE",
+	ActionUNSUBSCRIBE:"UNSUBSCRIBE",
+	ActionCONNECT:"CONNECT",
+	ActionJOIN:"JOIN",
 }
 

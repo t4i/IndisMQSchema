@@ -10,153 +10,26 @@ var IndisMQ = IndisMQ || {};
  * @enum
  */
 IndisMQ.MsgType = {
-  NONE: 0,
-  SINGLE: 1,
-  CAST: 2,
-  QUEUE: 3,
-  CMD: 4
+  REQ: 0,
+  REP: 1,
+  CAST: 2
 };
 
 /**
  * @enum
  */
 IndisMQ.Action = {
-  NONE: 0,
-  GET: 1,
-  SET: 2,
-  NEW: 3,
-  APPEND: 4,
-  REPLACE: 5,
-  UPDATE: 6,
-  DELETE: 7
-};
-
-/**
- * @enum
- */
-IndisMQ.Cmd = {
-  NONE: 0,
-  SUB: 1,
-  UNSUB: 2,
-  SYN: 3,
-  READY: 4
-};
-
-/**
- * @enum
- */
-IndisMQ.Sts = {
-  NONE: 0,
-  ERROR: 1,
-  REQ: 2,
-  REP: 3,
-  SEQ: 4,
-  CANCEL: 5,
-  SUCCESS: 6,
-  ACK: 7
-};
-
-/**
- * @enum
- */
-IndisMQ.Err = {
-  NONE: 0,
-  NO_HANDLER: 1,
-  INVALID: 2,
-  REMOTE: 3,
-  TIMEOUT: 4
-};
-
-/**
- * @enum
- */
-IndisMQ.AuthErr = {
-  NONE: 0,
-  INVALID: 1,
-  UNAUTHORIZED: 2
-};
-
-/**
- * @constructor
- */
-IndisMQ.Ver = function() {
-  /**
-   * @type {flatbuffers.ByteBuffer}
-   */
-  this.bb = null;
-
-  /**
-   * @type {number}
-   */
-  this.bb_pos = 0;
-};
-
-/**
- * @param {number} i
- * @param {flatbuffers.ByteBuffer} bb
- * @returns {IndisMQ.Ver}
- */
-IndisMQ.Ver.prototype.__init = function(i, bb) {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @returns {number}
- */
-IndisMQ.Ver.prototype.Major = function() {
-  return this.bb.readInt8(this.bb_pos);
-};
-
-/**
- * @param {number} value
- * @returns {boolean}
- */
-IndisMQ.Ver.prototype.mutate_Major = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 0)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
-
-/**
- * @returns {number}
- */
-IndisMQ.Ver.prototype.Minor = function() {
-  return this.bb.readInt8(this.bb_pos + 1);
-};
-
-/**
- * @param {number} value
- * @returns {boolean}
- */
-IndisMQ.Ver.prototype.mutate_Minor = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 1)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} Major
- * @param {number} Minor
- * @returns {flatbuffers.Offset}
- */
-IndisMQ.Ver.createVer = function(builder, Major, Minor) {
-  builder.prep(1, 2);
-  builder.writeInt8(Minor);
-  builder.writeInt8(Major);
-  return builder.offset();
+  GET: 0,
+  SET: 1,
+  NEW: 2,
+  APPEND: 3,
+  REPLACE: 4,
+  UPDATE: 5,
+  DELETE: 6,
+  SUBSCRIBE: 7,
+  UNSUBSCRIBE: 8,
+  CONNECT: 9,
+  JOIN: 10
 };
 
 /**
@@ -203,100 +76,11 @@ IndisMQ.Imq.bufferHasIdentifier = function(bb) {
 };
 
 /**
- * @param {number} index
- * @returns {number}
- */
-IndisMQ.Imq.prototype.Body = function(index) {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
-};
-
-/**
- * @returns {number}
- */
-IndisMQ.Imq.prototype.BodyLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @returns {Uint8Array}
- */
-IndisMQ.Imq.prototype.BodyArray = function() {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-};
-
-/**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-IndisMQ.Imq.prototype.From = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-IndisMQ.Imq.prototype.To = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.Broker = function() {
-  var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
- * @param {boolean} value
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.mutate_Broker = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 10)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, +value);
-  return true;
-}
-
-/**
- * @returns {IndisMQ.Cmd}
- */
-IndisMQ.Imq.prototype.Cmd = function() {
-  var offset = this.bb.__offset(this.bb_pos, 12);
-  return offset ? /** @type {IndisMQ.Cmd} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.Cmd.NONE;
-};
-
-/**
- * @param {IndisMQ.Cmd} value
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.mutate_Cmd = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 12)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
-
-/**
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
 IndisMQ.Imq.prototype.MsgId = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 14);
+  var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
@@ -304,8 +88,8 @@ IndisMQ.Imq.prototype.MsgId = function(optionalEncoding) {
  * @returns {IndisMQ.MsgType}
  */
 IndisMQ.Imq.prototype.MsgType = function() {
-  var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? /** @type {IndisMQ.MsgType} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.MsgType.NONE;
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? /** @type {IndisMQ.MsgType} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.MsgType.REQ;
 };
 
 /**
@@ -313,7 +97,7 @@ IndisMQ.Imq.prototype.MsgType = function() {
  * @returns {boolean}
  */
 IndisMQ.Imq.prototype.mutate_MsgType = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 16)
+  var offset = this.bb.__offset(this.bb_pos, 6)
 
   if (offset === 0) {
     return false;
@@ -324,19 +108,19 @@ IndisMQ.Imq.prototype.mutate_MsgType = function(value) {
 }
 
 /**
- * @returns {IndisMQ.Sts}
+ * @returns {IndisMQ.Action}
  */
-IndisMQ.Imq.prototype.Sts = function() {
-  var offset = this.bb.__offset(this.bb_pos, 18);
-  return offset ? /** @type {IndisMQ.Sts} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.Sts.NONE;
+IndisMQ.Imq.prototype.Action = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? /** @type {IndisMQ.Action} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.Action.GET;
 };
 
 /**
- * @param {IndisMQ.Sts} value
+ * @param {IndisMQ.Action} value
  * @returns {boolean}
  */
-IndisMQ.Imq.prototype.mutate_Sts = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 18)
+IndisMQ.Imq.prototype.mutate_Action = function(value) {
+  var offset = this.bb.__offset(this.bb_pos, 8)
 
   if (offset === 0) {
     return false;
@@ -345,103 +129,147 @@ IndisMQ.Imq.prototype.mutate_Sts = function(value) {
   this.bb.writeInt8(this.bb_pos + offset, value);
   return true;
 }
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Imq.prototype.To = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Imq.prototype.From = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
 
 /**
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
 IndisMQ.Imq.prototype.Path = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+IndisMQ.Imq.prototype.Authorization = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+IndisMQ.Imq.prototype.Body = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+IndisMQ.Imq.prototype.BodyLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Uint8Array}
+ */
+IndisMQ.Imq.prototype.BodyArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {number} index
+ * @param {IndisMQ.Meta=} obj
+ * @returns {IndisMQ.Meta}
+ */
+IndisMQ.Imq.prototype.Meta = function(index, obj) {
   var offset = this.bb.__offset(this.bb_pos, 20);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+  return offset ? (obj || new IndisMQ.Meta).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
 /**
- * @returns {IndisMQ.Err}
+ * @returns {number}
  */
-IndisMQ.Imq.prototype.Err = function() {
-  var offset = this.bb.__offset(this.bb_pos, 22);
-  return offset ? /** @type {IndisMQ.Err} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.Err.NONE;
-};
-
-/**
- * @param {IndisMQ.Err} value
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.mutate_Err = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 22)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
-
-/**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-IndisMQ.Imq.prototype.StsMsg = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 24);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.Callback = function() {
-  var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
- * @param {boolean} value
- * @returns {boolean}
- */
-IndisMQ.Imq.prototype.mutate_Callback = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 26)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, +value);
-  return true;
-}
-
-/**
- * @param {IndisMQ.Ver=} obj
- * @returns {IndisMQ.Ver}
- */
-IndisMQ.Imq.prototype.Ver = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 28);
-  return offset ? (obj || new IndisMQ.Ver).__init(this.bb_pos + offset, this.bb) : null;
-};
-
-/**
- * @param {IndisMQ.Auth=} obj
- * @returns {IndisMQ.Auth}
- */
-IndisMQ.Imq.prototype.Auth = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 30);
-  return offset ? (obj || new IndisMQ.Auth).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-IndisMQ.Imq.prototype.User = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 32);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+IndisMQ.Imq.prototype.MetaLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
 IndisMQ.Imq.startImq = function(builder) {
-  builder.startObject(15);
+  builder.startObject(9);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} MsgIdOffset
+ */
+IndisMQ.Imq.addMsgId = function(builder, MsgIdOffset) {
+  builder.addFieldOffset(0, MsgIdOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {IndisMQ.MsgType} MsgType
+ */
+IndisMQ.Imq.addMsgType = function(builder, MsgType) {
+  builder.addFieldInt8(1, MsgType, IndisMQ.MsgType.REQ);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {IndisMQ.Action} Action
+ */
+IndisMQ.Imq.addAction = function(builder, Action) {
+  builder.addFieldInt8(2, Action, IndisMQ.Action.GET);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} ToOffset
+ */
+IndisMQ.Imq.addTo = function(builder, ToOffset) {
+  builder.addFieldOffset(3, ToOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} FromOffset
+ */
+IndisMQ.Imq.addFrom = function(builder, FromOffset) {
+  builder.addFieldOffset(4, FromOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} PathOffset
+ */
+IndisMQ.Imq.addPath = function(builder, PathOffset) {
+  builder.addFieldOffset(5, PathOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} AuthorizationOffset
+ */
+IndisMQ.Imq.addAuthorization = function(builder, AuthorizationOffset) {
+  builder.addFieldOffset(6, AuthorizationOffset, 0);
 };
 
 /**
@@ -449,7 +277,7 @@ IndisMQ.Imq.startImq = function(builder) {
  * @param {flatbuffers.Offset} BodyOffset
  */
 IndisMQ.Imq.addBody = function(builder, BodyOffset) {
-  builder.addFieldOffset(0, BodyOffset, 0);
+  builder.addFieldOffset(7, BodyOffset, 0);
 };
 
 /**
@@ -475,114 +303,31 @@ IndisMQ.Imq.startBodyVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} FromOffset
+ * @param {flatbuffers.Offset} MetaOffset
  */
-IndisMQ.Imq.addFrom = function(builder, FromOffset) {
-  builder.addFieldOffset(1, FromOffset, 0);
+IndisMQ.Imq.addMeta = function(builder, MetaOffset) {
+  builder.addFieldOffset(8, MetaOffset, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} ToOffset
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
  */
-IndisMQ.Imq.addTo = function(builder, ToOffset) {
-  builder.addFieldOffset(2, ToOffset, 0);
+IndisMQ.Imq.createMetaVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} Broker
+ * @param {number} numElems
  */
-IndisMQ.Imq.addBroker = function(builder, Broker) {
-  builder.addFieldInt8(3, +Broker, +false);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {IndisMQ.Cmd} Cmd
- */
-IndisMQ.Imq.addCmd = function(builder, Cmd) {
-  builder.addFieldInt8(4, Cmd, IndisMQ.Cmd.NONE);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} MsgIdOffset
- */
-IndisMQ.Imq.addMsgId = function(builder, MsgIdOffset) {
-  builder.addFieldOffset(5, MsgIdOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {IndisMQ.MsgType} MsgType
- */
-IndisMQ.Imq.addMsgType = function(builder, MsgType) {
-  builder.addFieldInt8(6, MsgType, IndisMQ.MsgType.NONE);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {IndisMQ.Sts} Sts
- */
-IndisMQ.Imq.addSts = function(builder, Sts) {
-  builder.addFieldInt8(7, Sts, IndisMQ.Sts.NONE);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} PathOffset
- */
-IndisMQ.Imq.addPath = function(builder, PathOffset) {
-  builder.addFieldOffset(8, PathOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {IndisMQ.Err} Err
- */
-IndisMQ.Imq.addErr = function(builder, Err) {
-  builder.addFieldInt8(9, Err, IndisMQ.Err.NONE);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} StsMsgOffset
- */
-IndisMQ.Imq.addStsMsg = function(builder, StsMsgOffset) {
-  builder.addFieldOffset(10, StsMsgOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {boolean} Callback
- */
-IndisMQ.Imq.addCallback = function(builder, Callback) {
-  builder.addFieldInt8(11, +Callback, +false);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} VerOffset
- */
-IndisMQ.Imq.addVer = function(builder, VerOffset) {
-  builder.addFieldStruct(12, VerOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} AuthOffset
- */
-IndisMQ.Imq.addAuth = function(builder, AuthOffset) {
-  builder.addFieldOffset(13, AuthOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} UserOffset
- */
-IndisMQ.Imq.addUser = function(builder, UserOffset) {
-  builder.addFieldOffset(14, UserOffset, 0);
+IndisMQ.Imq.startMetaVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
 };
 
 /**
@@ -605,7 +350,7 @@ IndisMQ.Imq.finishImqBuffer = function(builder, offset) {
 /**
  * @constructor
  */
-IndisMQ.Auth = function() {
+IndisMQ.Meta = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -620,9 +365,9 @@ IndisMQ.Auth = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {IndisMQ.Auth}
+ * @returns {IndisMQ.Meta}
  */
-IndisMQ.Auth.prototype.__init = function(i, bb) {
+IndisMQ.Meta.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -630,18 +375,18 @@ IndisMQ.Auth.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {IndisMQ.Auth=} obj
- * @returns {IndisMQ.Auth}
+ * @param {IndisMQ.Meta=} obj
+ * @returns {IndisMQ.Meta}
  */
-IndisMQ.Auth.getRootAsAuth = function(bb, obj) {
-  return (obj || new IndisMQ.Auth).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+IndisMQ.Meta.getRootAsMeta = function(bb, obj) {
+  return (obj || new IndisMQ.Meta).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
-IndisMQ.Auth.prototype.User = function(optionalEncoding) {
+IndisMQ.Meta.prototype.Key = function(optionalEncoding) {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
@@ -650,282 +395,41 @@ IndisMQ.Auth.prototype.User = function(optionalEncoding) {
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
-IndisMQ.Auth.prototype.Pass = function(optionalEncoding) {
+IndisMQ.Meta.prototype.Value = function(optionalEncoding) {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
 /**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
+ * @param {flatbuffers.Builder} builder
  */
-IndisMQ.Auth.prototype.Token = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-IndisMQ.Auth.prototype.Domain = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * @returns {boolean}
- */
-IndisMQ.Auth.prototype.Required = function() {
-  var offset = this.bb.__offset(this.bb_pos, 12);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
- * @param {boolean} value
- * @returns {boolean}
- */
-IndisMQ.Auth.prototype.mutate_Required = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 12)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, +value);
-  return true;
-}
-
-/**
- * @returns {flatbuffers.Long}
- */
-IndisMQ.Auth.prototype.Timestamp = function() {
-  var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
-};
-
-/**
- * @param {flatbuffers.Long} value
- * @returns {boolean}
- */
-IndisMQ.Auth.prototype.mutate_Timestamp = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 14)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt64(this.bb_pos + offset, value);
-  return true;
-}
-
-/**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-IndisMQ.Auth.prototype.Nonce = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * @param {number} index
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-IndisMQ.Auth.prototype.Ciphers = function(index, optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 18);
-  return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
-};
-
-/**
- * @returns {number}
- */
-IndisMQ.Auth.prototype.CiphersLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 18);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-IndisMQ.Auth.prototype.Alg = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 20);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * @returns {IndisMQ.AuthErr}
- */
-IndisMQ.Auth.prototype.Err = function() {
-  var offset = this.bb.__offset(this.bb_pos, 22);
-  return offset ? /** @type {IndisMQ.AuthErr} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.AuthErr.NONE;
-};
-
-/**
- * @param {IndisMQ.AuthErr} value
- * @returns {boolean}
- */
-IndisMQ.Auth.prototype.mutate_Err = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 22)
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeInt8(this.bb_pos + offset, value);
-  return true;
-}
-
-/**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-IndisMQ.Auth.prototype.ErrMsg = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 24);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-IndisMQ.Auth.prototype.Msg = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+IndisMQ.Meta.startMeta = function(builder) {
+  builder.startObject(2);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} KeyOffset
  */
-IndisMQ.Auth.startAuth = function(builder) {
-  builder.startObject(12);
+IndisMQ.Meta.addKey = function(builder, KeyOffset) {
+  builder.addFieldOffset(0, KeyOffset, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} UserOffset
+ * @param {flatbuffers.Offset} ValueOffset
  */
-IndisMQ.Auth.addUser = function(builder, UserOffset) {
-  builder.addFieldOffset(0, UserOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} PassOffset
- */
-IndisMQ.Auth.addPass = function(builder, PassOffset) {
-  builder.addFieldOffset(1, PassOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} TokenOffset
- */
-IndisMQ.Auth.addToken = function(builder, TokenOffset) {
-  builder.addFieldOffset(2, TokenOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} DomainOffset
- */
-IndisMQ.Auth.addDomain = function(builder, DomainOffset) {
-  builder.addFieldOffset(3, DomainOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {boolean} Required
- */
-IndisMQ.Auth.addRequired = function(builder, Required) {
-  builder.addFieldInt8(4, +Required, +false);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Long} Timestamp
- */
-IndisMQ.Auth.addTimestamp = function(builder, Timestamp) {
-  builder.addFieldInt64(5, Timestamp, builder.createLong(0, 0));
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} NonceOffset
- */
-IndisMQ.Auth.addNonce = function(builder, NonceOffset) {
-  builder.addFieldOffset(6, NonceOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} CiphersOffset
- */
-IndisMQ.Auth.addCiphers = function(builder, CiphersOffset) {
-  builder.addFieldOffset(7, CiphersOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<flatbuffers.Offset>} data
- * @returns {flatbuffers.Offset}
- */
-IndisMQ.Auth.createCiphersVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-IndisMQ.Auth.startCiphersVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} AlgOffset
- */
-IndisMQ.Auth.addAlg = function(builder, AlgOffset) {
-  builder.addFieldOffset(8, AlgOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {IndisMQ.AuthErr} Err
- */
-IndisMQ.Auth.addErr = function(builder, Err) {
-  builder.addFieldInt8(9, Err, IndisMQ.AuthErr.NONE);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} ErrMsgOffset
- */
-IndisMQ.Auth.addErrMsg = function(builder, ErrMsgOffset) {
-  builder.addFieldOffset(10, ErrMsgOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} MsgOffset
- */
-IndisMQ.Auth.addMsg = function(builder, MsgOffset) {
-  builder.addFieldOffset(11, MsgOffset, 0);
+IndisMQ.Meta.addValue = function(builder, ValueOffset) {
+  builder.addFieldOffset(1, ValueOffset, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-IndisMQ.Auth.endAuth = function(builder) {
+IndisMQ.Meta.endMeta = function(builder) {
   var offset = builder.endObject();
+  builder.requiredField(offset, 4); // Key
   return offset;
 };
 
