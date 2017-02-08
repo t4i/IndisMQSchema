@@ -10,10 +10,11 @@ const (
 	ActionREPLACE = 4
 	ActionUPDATE = 5
 	ActionDELETE = 6
-	ActionSUBSCRIBE = 7
-	ActionUNSUBSCRIBE = 8
-	ActionCONNECT = 9
-	ActionJOIN = 10
+	ActionPUBLISH = 7
+	ActionSUBSCRIBE = 8
+	ActionUNSUBSCRIBE = 9
+	ActionCONNECT = 10
+	ActionJOIN = 11
 )
 
 var EnumNamesAction = map[int]string{
@@ -24,6 +25,7 @@ var EnumNamesAction = map[int]string{
 	ActionREPLACE:"REPLACE",
 	ActionUPDATE:"UPDATE",
 	ActionDELETE:"DELETE",
+	ActionPUBLISH:"PUBLISH",
 	ActionSUBSCRIBE:"SUBSCRIBE",
 	ActionUNSUBSCRIBE:"UNSUBSCRIBE",
 	ActionCONNECT:"CONNECT",

@@ -30,7 +30,7 @@ func (rcv *Imq) MsgId() []byte {
 	return nil
 }
 
-func (rcv *Imq) MsgType() int8 {
+func (rcv *Imq) Action() int8 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetInt8(o + rcv._tab.Pos)
@@ -38,24 +38,12 @@ func (rcv *Imq) MsgType() int8 {
 	return 0
 }
 
-func (rcv *Imq) MutateMsgType(n int8) bool {
+func (rcv *Imq) MutateAction(n int8) bool {
 	return rcv._tab.MutateInt8Slot(6, n)
 }
 
-func (rcv *Imq) Action() int8 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
-	if o != 0 {
-		return rcv._tab.GetInt8(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-func (rcv *Imq) MutateAction(n int8) bool {
-	return rcv._tab.MutateInt8Slot(8, n)
-}
-
 func (rcv *Imq) Status() uint16 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetUint16(o + rcv._tab.Pos)
 	}
@@ -63,11 +51,11 @@ func (rcv *Imq) Status() uint16 {
 }
 
 func (rcv *Imq) MutateStatus(n uint16) bool {
-	return rcv._tab.MutateUint16Slot(10, n)
+	return rcv._tab.MutateUint16Slot(8, n)
 }
 
 func (rcv *Imq) To() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -75,7 +63,7 @@ func (rcv *Imq) To() []byte {
 }
 
 func (rcv *Imq) From() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -83,7 +71,7 @@ func (rcv *Imq) From() []byte {
 }
 
 func (rcv *Imq) Path() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(14))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
@@ -91,11 +79,23 @@ func (rcv *Imq) Path() []byte {
 }
 
 func (rcv *Imq) Authorization() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
 	return nil
+}
+
+func (rcv *Imq) Callback() byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
+	if o != 0 {
+		return rcv._tab.GetByte(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Imq) MutateCallback(n byte) bool {
+	return rcv._tab.MutateByteSlot(18, n)
 }
 
 func (rcv *Imq) Body(j int) byte {
@@ -149,26 +149,26 @@ func ImqStart(builder *flatbuffers.Builder) {
 func ImqAddMsgId(builder *flatbuffers.Builder, MsgId flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(MsgId), 0)
 }
-func ImqAddMsgType(builder *flatbuffers.Builder, MsgType int8) {
-	builder.PrependInt8Slot(1, MsgType, 0)
-}
 func ImqAddAction(builder *flatbuffers.Builder, Action int8) {
-	builder.PrependInt8Slot(2, Action, 0)
+	builder.PrependInt8Slot(1, Action, 0)
 }
 func ImqAddStatus(builder *flatbuffers.Builder, Status uint16) {
-	builder.PrependUint16Slot(3, Status, 0)
+	builder.PrependUint16Slot(2, Status, 0)
 }
 func ImqAddTo(builder *flatbuffers.Builder, To flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(To), 0)
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(To), 0)
 }
 func ImqAddFrom(builder *flatbuffers.Builder, From flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(From), 0)
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(From), 0)
 }
 func ImqAddPath(builder *flatbuffers.Builder, Path flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(Path), 0)
+	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(Path), 0)
 }
 func ImqAddAuthorization(builder *flatbuffers.Builder, Authorization flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(Authorization), 0)
+	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(Authorization), 0)
+}
+func ImqAddCallback(builder *flatbuffers.Builder, Callback byte) {
+	builder.PrependByteSlot(7, Callback, 0)
 }
 func ImqAddBody(builder *flatbuffers.Builder, Body flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(Body), 0)

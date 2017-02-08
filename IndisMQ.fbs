@@ -2,13 +2,6 @@
 //Version Major 00 Minor 01
 namespace IndisMQ;
 file_identifier "0001";
-/* these are the types of messages that can be sent
-SINGLE: like an RPC has a single intended recepient aka peer
-CAST: intended for all active subscribers
-QUEUE: intended for one of active subscribers
-CMD: Internal Command send to peer
-*/
-enum MsgType:byte{REQ,REP,CAST}
 /* these give additional (optional) information for the receiver similar to http verbs
 Actual meaning is program specific, this is only intent
 GET: retrieve a value
@@ -19,7 +12,7 @@ REPLACE: Replace a value entirely
 UPDATE: Update value with included properties
 DELETE: Delete a value
 */
-enum Action:byte{GET,SET,NEW,APPEND,REPLACE,UPDATE,DELETE,SUBSCRIBE,UNSUBSCRIBE,CONNECT,JOIN}
+enum Action:byte{GET,SET,NEW,APPEND,REPLACE,UPDATE,DELETE,PUBLISH,SUBSCRIBE,UNSUBSCRIBE,CONNECT,JOIN}
 /*these are internal command codes
 SUB: request to subscribe to a path, will be processed automatically and return if a callback is present
 UNSUB: request to be unsubscribed to a path, processed automaticlaly and return success if a callback is present
@@ -29,13 +22,13 @@ PATHS (future): Returns list of paths receiver has handlers and subscribers for
 */
 table Imq{
     MsgId:string;
-    MsgType:MsgType;
     Action:Action;
     Status:ushort;
     To:string;
     From:string;
     Path:string;
     Authorization:string;
+    Callback:bool;
     Body:[ubyte];
     Meta:[Meta];
 }
@@ -44,5 +37,18 @@ table Meta{
     Key:string(key);
     Value:string;
 }
+/*
+// table Group{
+//     Name:string;
+//     Members:[string];
+//     Connections:[string];
+// }
+
+// enum NodeState:byte{}
+// table Node{
+//     Name:string;
+//     State:uint;
+// }
+*/
 
 root_type Imq;
