@@ -31,6 +31,7 @@ table Imq{
     MsgId:string;
     MsgType:MsgType;
     Action:Action;
+    Status:ushort;
     To:string;
     From:string;
     Path:string;

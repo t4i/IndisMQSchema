@@ -129,13 +129,36 @@ mutate_Action(value:IndisMQ.Action):boolean {
 }
 
 /**
+ * @returns {number}
+ */
+Status():number {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? this.bb.readUint16(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {number} value
+ * @returns {boolean}
+ */
+mutate_Status(value:number):boolean {
+  var offset = this.bb.__offset(this.bb_pos, 10)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeUint16(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array}
  */
 To():string
 To(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
 To(optionalEncoding?:any):string|Uint8Array {
-  var offset = this.bb.__offset(this.bb_pos, 10);
+  var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
@@ -146,7 +169,7 @@ To(optionalEncoding?:any):string|Uint8Array {
 From():string
 From(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
 From(optionalEncoding?:any):string|Uint8Array {
-  var offset = this.bb.__offset(this.bb_pos, 12);
+  var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
@@ -157,7 +180,7 @@ From(optionalEncoding?:any):string|Uint8Array {
 Path():string
 Path(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
 Path(optionalEncoding?:any):string|Uint8Array {
-  var offset = this.bb.__offset(this.bb_pos, 14);
+  var offset = this.bb.__offset(this.bb_pos, 16);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
@@ -168,7 +191,7 @@ Path(optionalEncoding?:any):string|Uint8Array {
 Authorization():string
 Authorization(optionalEncoding:flatbuffers.Encoding):string|Uint8Array
 Authorization(optionalEncoding?:any):string|Uint8Array {
-  var offset = this.bb.__offset(this.bb_pos, 16);
+  var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
@@ -177,7 +200,7 @@ Authorization(optionalEncoding?:any):string|Uint8Array {
  * @returns {number}
  */
 Body(index: number):number {
-  var offset = this.bb.__offset(this.bb_pos, 18);
+  var offset = this.bb.__offset(this.bb_pos, 20);
   return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
 };
 
@@ -185,7 +208,7 @@ Body(index: number):number {
  * @returns {number}
  */
 BodyLength():number {
-  var offset = this.bb.__offset(this.bb_pos, 18);
+  var offset = this.bb.__offset(this.bb_pos, 20);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -193,7 +216,7 @@ BodyLength():number {
  * @returns {Uint8Array}
  */
 BodyArray():Uint8Array {
-  var offset = this.bb.__offset(this.bb_pos, 18);
+  var offset = this.bb.__offset(this.bb_pos, 20);
   return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
@@ -203,7 +226,7 @@ BodyArray():Uint8Array {
  * @returns {IndisMQ.Meta}
  */
 Meta(index: number, obj?:IndisMQ.Meta):IndisMQ.Meta {
-  var offset = this.bb.__offset(this.bb_pos, 20);
+  var offset = this.bb.__offset(this.bb_pos, 22);
   return offset ? (obj || new IndisMQ.Meta).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
@@ -211,7 +234,7 @@ Meta(index: number, obj?:IndisMQ.Meta):IndisMQ.Meta {
  * @returns {number}
  */
 MetaLength():number {
-  var offset = this.bb.__offset(this.bb_pos, 20);
+  var offset = this.bb.__offset(this.bb_pos, 22);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -219,7 +242,7 @@ MetaLength():number {
  * @param {flatbuffers.Builder} builder
  */
 static startImq(builder:flatbuffers.Builder) {
-  builder.startObject(9);
+  builder.startObject(10);
 };
 
 /**
@@ -248,10 +271,18 @@ static addAction(builder:flatbuffers.Builder, Action:IndisMQ.Action) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {number} Status
+ */
+static addStatus(builder:flatbuffers.Builder, Status:number) {
+  builder.addFieldInt16(3, Status, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} ToOffset
  */
 static addTo(builder:flatbuffers.Builder, ToOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, ToOffset, 0);
+  builder.addFieldOffset(4, ToOffset, 0);
 };
 
 /**
@@ -259,7 +290,7 @@ static addTo(builder:flatbuffers.Builder, ToOffset:flatbuffers.Offset) {
  * @param {flatbuffers.Offset} FromOffset
  */
 static addFrom(builder:flatbuffers.Builder, FromOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(4, FromOffset, 0);
+  builder.addFieldOffset(5, FromOffset, 0);
 };
 
 /**
@@ -267,7 +298,7 @@ static addFrom(builder:flatbuffers.Builder, FromOffset:flatbuffers.Offset) {
  * @param {flatbuffers.Offset} PathOffset
  */
 static addPath(builder:flatbuffers.Builder, PathOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(5, PathOffset, 0);
+  builder.addFieldOffset(6, PathOffset, 0);
 };
 
 /**
@@ -275,7 +306,7 @@ static addPath(builder:flatbuffers.Builder, PathOffset:flatbuffers.Offset) {
  * @param {flatbuffers.Offset} AuthorizationOffset
  */
 static addAuthorization(builder:flatbuffers.Builder, AuthorizationOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(6, AuthorizationOffset, 0);
+  builder.addFieldOffset(7, AuthorizationOffset, 0);
 };
 
 /**
@@ -283,7 +314,7 @@ static addAuthorization(builder:flatbuffers.Builder, AuthorizationOffset:flatbuf
  * @param {flatbuffers.Offset} BodyOffset
  */
 static addBody(builder:flatbuffers.Builder, BodyOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(7, BodyOffset, 0);
+  builder.addFieldOffset(8, BodyOffset, 0);
 };
 
 /**
@@ -315,7 +346,7 @@ static startBodyVector(builder:flatbuffers.Builder, numElems:number) {
  * @param {flatbuffers.Offset} MetaOffset
  */
 static addMeta(builder:flatbuffers.Builder, MetaOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(8, MetaOffset, 0);
+  builder.addFieldOffset(9, MetaOffset, 0);
 };
 
 /**
