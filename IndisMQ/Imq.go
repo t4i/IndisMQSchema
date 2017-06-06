@@ -123,7 +123,7 @@ func (rcv *Imq) BodyBytes() []byte {
 	return nil
 }
 
-func (rcv *Imq) Meta(obj *Meta, j int) bool {
+func (rcv *Imq) Meta(obj *KeyVal, j int) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
@@ -143,8 +143,32 @@ func (rcv *Imq) MetaLength() int {
 	return 0
 }
 
+func (rcv *Imq) Guarantee() int8 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(24))
+	if o != 0 {
+		return rcv._tab.GetInt8(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Imq) MutateGuarantee(n int8) bool {
+	return rcv._tab.MutateInt8Slot(24, n)
+}
+
+func (rcv *Imq) Timeout() int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(26))
+	if o != 0 {
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Imq) MutateTimeout(n int32) bool {
+	return rcv._tab.MutateInt32Slot(26, n)
+}
+
 func ImqStart(builder *flatbuffers.Builder) {
-	builder.StartObject(10)
+	builder.StartObject(12)
 }
 func ImqAddMsgId(builder *flatbuffers.Builder, MsgId flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(MsgId), 0)
@@ -181,6 +205,12 @@ func ImqAddMeta(builder *flatbuffers.Builder, Meta flatbuffers.UOffsetT) {
 }
 func ImqStartMetaVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
+}
+func ImqAddGuarantee(builder *flatbuffers.Builder, Guarantee int8) {
+	builder.PrependInt8Slot(10, Guarantee, 0)
+}
+func ImqAddTimeout(builder *flatbuffers.Builder, Timeout int32) {
+	builder.PrependInt32Slot(11, Timeout, 0)
 }
 func ImqEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

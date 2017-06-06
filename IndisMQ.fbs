@@ -12,7 +12,7 @@ REPLACE: Replace a value entirely
 UPDATE: Update value with included properties
 DELETE: Delete a value
 */
-enum Action:byte{GET,RESPONSE,SET,NEW,APPEND,REPLACE,UPDATE,DELETE,PUBLISH,SUBSCRIBE,UNSUBSCRIBE,CONNECT,JOIN}
+enum Action:byte{ACK,GET,RESPONSE,SET,NEW,APPEND,REPLACE,UPDATE,DELETE,CAST,SUBSCRIBE,UNSUBSCRIBE,CONNECT,JOIN}
 /*these are internal command codes
 SUB: request to subscribe to a path, will be processed automatically and return if a callback is present
 UNSUB: request to be unsubscribed to a path, processed automaticlaly and return success if a callback is present
@@ -20,9 +20,11 @@ SYN: request Syncronization, receiver replies with an ACK that contains client i
 READY: Ready to recieve
 PATHS (future): Returns list of paths receiver has handlers and subscribers for
 */
+enum Guarantee:byte{NONE,AT_LEAST_ONCE}
+
 table Imq{
     MsgId:string;
-    Action:Action;
+    Action:Action=0;
     Status:ushort;
     To:string;
     From:string;
@@ -30,10 +32,12 @@ table Imq{
     Authorization:string;
     Callback:bool;
     Body:[ubyte];
-    Meta:[Meta];
+    Meta:[KeyVal];
+    Guarantee:Guarantee=0;
+    Timeout:int;
 }
 
-table Meta{
+table KeyVal{
     Key:string(key);
     Value:string;
 }

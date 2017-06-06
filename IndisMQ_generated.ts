@@ -6,19 +6,29 @@ import {flatbuffers} from "./flatbuffers"
  */
 export namespace IndisMQ{
 export enum Action{
-  GET= 0,
-  RESPONSE= 1,
-  SET= 2,
-  NEW= 3,
-  APPEND= 4,
-  REPLACE= 5,
-  UPDATE= 6,
-  DELETE= 7,
-  PUBLISH= 8,
-  SUBSCRIBE= 9,
-  UNSUBSCRIBE= 10,
-  CONNECT= 11,
-  JOIN= 12
+  ACK= 0,
+  GET= 1,
+  RESPONSE= 2,
+  SET= 3,
+  NEW= 4,
+  APPEND= 5,
+  REPLACE= 6,
+  UPDATE= 7,
+  DELETE= 8,
+  CAST= 9,
+  SUBSCRIBE= 10,
+  UNSUBSCRIBE= 11,
+  CONNECT= 12,
+  JOIN= 13
+}}
+
+/**
+ * @enum
+ */
+export namespace IndisMQ{
+export enum Guarantee{
+  NONE= 0,
+  AT_LEAST_ONCE= 1
 }}
 
 /**
@@ -79,7 +89,7 @@ MsgId(optionalEncoding?:any):string|Uint8Array {
  */
 Action():IndisMQ.Action {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? /** @type {IndisMQ.Action} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.Action.GET;
+  return offset ? /** @type {IndisMQ.Action} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.Action.ACK;
 };
 
 /**
@@ -214,12 +224,12 @@ BodyArray():Uint8Array {
 
 /**
  * @param {number} index
- * @param {IndisMQ.Meta=} obj
- * @returns {IndisMQ.Meta}
+ * @param {IndisMQ.KeyVal=} obj
+ * @returns {IndisMQ.KeyVal}
  */
-Meta(index: number, obj?:IndisMQ.Meta):IndisMQ.Meta {
+Meta(index: number, obj?:IndisMQ.KeyVal):IndisMQ.KeyVal {
   var offset = this.bb.__offset(this.bb_pos, 22);
-  return offset ? (obj || new IndisMQ.Meta).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+  return offset ? (obj || new IndisMQ.KeyVal).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
 /**
@@ -231,10 +241,56 @@ MetaLength():number {
 };
 
 /**
+ * @returns {IndisMQ.Guarantee}
+ */
+Guarantee():IndisMQ.Guarantee {
+  var offset = this.bb.__offset(this.bb_pos, 24);
+  return offset ? /** @type {IndisMQ.Guarantee} */ (this.bb.readInt8(this.bb_pos + offset)) : IndisMQ.Guarantee.NONE;
+};
+
+/**
+ * @param {IndisMQ.Guarantee} value
+ * @returns {boolean}
+ */
+mutate_Guarantee(value:IndisMQ.Guarantee):boolean {
+  var offset = this.bb.__offset(this.bb_pos, 24)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt8(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
+ * @returns {number}
+ */
+Timeout():number {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {number} value
+ * @returns {boolean}
+ */
+mutate_Timeout(value:number):boolean {
+  var offset = this.bb.__offset(this.bb_pos, 26)
+
+  if (offset === 0) {
+    return false;
+  }
+
+  this.bb.writeInt32(this.bb_pos + offset, value);
+  return true;
+}
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 static startImq(builder:flatbuffers.Builder) {
-  builder.startObject(10);
+  builder.startObject(12);
 };
 
 /**
@@ -250,7 +306,7 @@ static addMsgId(builder:flatbuffers.Builder, MsgIdOffset:flatbuffers.Offset) {
  * @param {IndisMQ.Action} Action
  */
 static addAction(builder:flatbuffers.Builder, Action:IndisMQ.Action) {
-  builder.addFieldInt8(1, Action, IndisMQ.Action.GET);
+  builder.addFieldInt8(1, Action, IndisMQ.Action.ACK);
 };
 
 /**
@@ -367,6 +423,22 @@ static startMetaVector(builder:flatbuffers.Builder, numElems:number) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {IndisMQ.Guarantee} Guarantee
+ */
+static addGuarantee(builder:flatbuffers.Builder, Guarantee:IndisMQ.Guarantee) {
+  builder.addFieldInt8(10, Guarantee, IndisMQ.Guarantee.NONE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} Timeout
+ */
+static addTimeout(builder:flatbuffers.Builder, Timeout:number) {
+  builder.addFieldInt32(11, Timeout, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 static endImq (builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -388,7 +460,7 @@ static finishImqBuffer(builder:flatbuffers.Builder, offset:flatbuffers.Offset) {
  * @constructor
  */
 export namespace IndisMQ{
-export class Meta {
+export class KeyVal {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -401,9 +473,9 @@ export class Meta {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {Meta}
+ * @returns {KeyVal}
  */
-__init(i:number, bb:flatbuffers.ByteBuffer):Meta {
+__init(i:number, bb:flatbuffers.ByteBuffer):KeyVal {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -411,11 +483,11 @@ __init(i:number, bb:flatbuffers.ByteBuffer):Meta {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {Meta=} obj
- * @returns {Meta}
+ * @param {KeyVal=} obj
+ * @returns {KeyVal}
  */
-static getRootAsMeta(bb:flatbuffers.ByteBuffer, obj?:Meta):Meta {
-  return (obj || new Meta).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+static getRootAsKeyVal(bb:flatbuffers.ByteBuffer, obj?:KeyVal):KeyVal {
+  return (obj || new KeyVal).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
@@ -443,7 +515,7 @@ Value(optionalEncoding?:any):string|Uint8Array {
 /**
  * @param {flatbuffers.Builder} builder
  */
-static startMeta(builder:flatbuffers.Builder) {
+static startKeyVal(builder:flatbuffers.Builder) {
   builder.startObject(2);
 };
 
@@ -467,7 +539,7 @@ static addValue(builder:flatbuffers.Builder, ValueOffset:flatbuffers.Offset) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-static endMeta (builder:flatbuffers.Builder):flatbuffers.Offset {
+static endKeyVal (builder:flatbuffers.Builder):flatbuffers.Offset {
   var offset = builder.endObject();
   builder.requiredField(offset, 4); // Key
   return offset;

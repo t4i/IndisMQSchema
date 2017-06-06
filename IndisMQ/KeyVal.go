@@ -6,23 +6,23 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type Meta struct {
+type KeyVal struct {
 	_tab flatbuffers.Table
 }
 
-func GetRootAsMeta(buf []byte, offset flatbuffers.UOffsetT) *Meta {
+func GetRootAsKeyVal(buf []byte, offset flatbuffers.UOffsetT) *KeyVal {
 	n := flatbuffers.GetUOffsetT(buf[offset:])
-	x := &Meta{}
+	x := &KeyVal{}
 	x.Init(buf, n+offset)
 	return x
 }
 
-func (rcv *Meta) Init(buf []byte, i flatbuffers.UOffsetT) {
+func (rcv *KeyVal) Init(buf []byte, i flatbuffers.UOffsetT) {
 	rcv._tab.Bytes = buf
 	rcv._tab.Pos = i
 }
 
-func (rcv *Meta) Key() []byte {
+func (rcv *KeyVal) Key() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -30,7 +30,7 @@ func (rcv *Meta) Key() []byte {
 	return nil
 }
 
-func (rcv *Meta) Value() []byte {
+func (rcv *KeyVal) Value() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -38,15 +38,15 @@ func (rcv *Meta) Value() []byte {
 	return nil
 }
 
-func MetaStart(builder *flatbuffers.Builder) {
+func KeyValStart(builder *flatbuffers.Builder) {
 	builder.StartObject(2)
 }
-func MetaAddKey(builder *flatbuffers.Builder, Key flatbuffers.UOffsetT) {
+func KeyValAddKey(builder *flatbuffers.Builder, Key flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(Key), 0)
 }
-func MetaAddValue(builder *flatbuffers.Builder, Value flatbuffers.UOffsetT) {
+func KeyValAddValue(builder *flatbuffers.Builder, Value flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(Value), 0)
 }
-func MetaEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+func KeyValEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
 }

@@ -10,33 +10,48 @@ namespace IndisMQ {
 struct Imq;
 struct ImqT;
 
-struct Meta;
-struct MetaT;
+struct KeyVal;
+struct KeyValT;
 
 enum class Action : int8_t {
-  GET = 0,
-  RESPONSE = 1,
-  SET = 2,
-  NEW = 3,
-  APPEND = 4,
-  REPLACE = 5,
-  UPDATE = 6,
-  DELETE = 7,
-  PUBLISH = 8,
-  SUBSCRIBE = 9,
-  UNSUBSCRIBE = 10,
-  CONNECT = 11,
-  JOIN = 12,
-  MIN = GET,
+  ACK = 0,
+  GET = 1,
+  RESPONSE = 2,
+  SET = 3,
+  NEW = 4,
+  APPEND = 5,
+  REPLACE = 6,
+  UPDATE = 7,
+  DELETE = 8,
+  CAST = 9,
+  SUBSCRIBE = 10,
+  UNSUBSCRIBE = 11,
+  CONNECT = 12,
+  JOIN = 13,
+  MIN = ACK,
   MAX = JOIN
 };
 
 inline const char **EnumNamesAction() {
-  static const char *names[] = { "GET", "RESPONSE", "SET", "NEW", "APPEND", "REPLACE", "UPDATE", "DELETE", "PUBLISH", "SUBSCRIBE", "UNSUBSCRIBE", "CONNECT", "JOIN", nullptr };
+  static const char *names[] = { "ACK", "GET", "RESPONSE", "SET", "NEW", "APPEND", "REPLACE", "UPDATE", "DELETE", "CAST", "SUBSCRIBE", "UNSUBSCRIBE", "CONNECT", "JOIN", nullptr };
   return names;
 }
 
 inline const char *EnumNameAction(Action e) { return EnumNamesAction()[static_cast<int>(e)]; }
+
+enum class Guarantee : int8_t {
+  NONE = 0,
+  AT_LEAST_ONCE = 1,
+  MIN = NONE,
+  MAX = AT_LEAST_ONCE
+};
+
+inline const char **EnumNamesGuarantee() {
+  static const char *names[] = { "NONE", "AT_LEAST_ONCE", nullptr };
+  return names;
+}
+
+inline const char *EnumNameGuarantee(Guarantee e) { return EnumNamesGuarantee()[static_cast<int>(e)]; }
 
 struct ImqT : public flatbuffers::NativeTable {
   std::string MsgId;
@@ -48,7 +63,9 @@ struct ImqT : public flatbuffers::NativeTable {
   std::string Authorization;
   bool Callback;
   std::vector<uint8_t> Body;
-  std::vector<std::unique_ptr<MetaT>> Meta;
+  std::vector<std::unique_ptr<KeyValT>> Meta;
+  Guarantee Guarantee;
+  int32_t Timeout;
 };
 
 struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
@@ -62,7 +79,9 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_AUTHORIZATION = 16,
     VT_CALLBACK = 18,
     VT_BODY = 20,
-    VT_META = 22
+    VT_META = 22,
+    VT_GUARANTEE = 24,
+    VT_TIMEOUT = 26
   };
   const flatbuffers::String *MsgId() const { return GetPointer<const flatbuffers::String *>(VT_MSGID); }
   flatbuffers::String *mutable_MsgId() { return GetPointer<flatbuffers::String *>(VT_MSGID); }
@@ -82,8 +101,12 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   bool mutate_Callback(bool _Callback) { return SetField(VT_CALLBACK, static_cast<uint8_t>(_Callback)); }
   const flatbuffers::Vector<uint8_t> *Body() const { return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_BODY); }
   flatbuffers::Vector<uint8_t> *mutable_Body() { return GetPointer<flatbuffers::Vector<uint8_t> *>(VT_BODY); }
-  const flatbuffers::Vector<flatbuffers::Offset<Meta>> *Meta() const { return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Meta>> *>(VT_META); }
-  flatbuffers::Vector<flatbuffers::Offset<Meta>> *mutable_Meta() { return GetPointer<flatbuffers::Vector<flatbuffers::Offset<Meta>> *>(VT_META); }
+  const flatbuffers::Vector<flatbuffers::Offset<KeyVal>> *Meta() const { return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<KeyVal>> *>(VT_META); }
+  flatbuffers::Vector<flatbuffers::Offset<KeyVal>> *mutable_Meta() { return GetPointer<flatbuffers::Vector<flatbuffers::Offset<KeyVal>> *>(VT_META); }
+  Guarantee Guarantee() const { return static_cast<Guarantee>(GetField<int8_t>(VT_GUARANTEE, 0)); }
+  bool mutate_Guarantee(Guarantee _Guarantee) { return SetField(VT_GUARANTEE, static_cast<int8_t>(_Guarantee)); }
+  int32_t Timeout() const { return GetField<int32_t>(VT_TIMEOUT, 0); }
+  bool mutate_Timeout(int32_t _Timeout) { return SetField(VT_TIMEOUT, _Timeout); }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<flatbuffers::uoffset_t>(verifier, VT_MSGID) &&
@@ -104,6 +127,8 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<flatbuffers::uoffset_t>(verifier, VT_META) &&
            verifier.Verify(Meta()) &&
            verifier.VerifyVectorOfTables(Meta()) &&
+           VerifyField<int8_t>(verifier, VT_GUARANTEE) &&
+           VerifyField<int32_t>(verifier, VT_TIMEOUT) &&
            verifier.EndTable();
   }
   ImqT *UnPack(const flatbuffers::resolver_function_t *resolver = nullptr) const;
@@ -121,18 +146,20 @@ struct ImqBuilder {
   void add_Authorization(flatbuffers::Offset<flatbuffers::String> Authorization) { fbb_.AddOffset(Imq::VT_AUTHORIZATION, Authorization); }
   void add_Callback(bool Callback) { fbb_.AddElement<uint8_t>(Imq::VT_CALLBACK, static_cast<uint8_t>(Callback), 0); }
   void add_Body(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> Body) { fbb_.AddOffset(Imq::VT_BODY, Body); }
-  void add_Meta(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Meta>>> Meta) { fbb_.AddOffset(Imq::VT_META, Meta); }
+  void add_Meta(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<KeyVal>>> Meta) { fbb_.AddOffset(Imq::VT_META, Meta); }
+  void add_Guarantee(Guarantee Guarantee) { fbb_.AddElement<int8_t>(Imq::VT_GUARANTEE, static_cast<int8_t>(Guarantee), 0); }
+  void add_Timeout(int32_t Timeout) { fbb_.AddElement<int32_t>(Imq::VT_TIMEOUT, Timeout, 0); }
   ImqBuilder(flatbuffers::FlatBufferBuilder &_fbb) : fbb_(_fbb) { start_ = fbb_.StartTable(); }
   ImqBuilder &operator=(const ImqBuilder &);
   flatbuffers::Offset<Imq> Finish() {
-    auto o = flatbuffers::Offset<Imq>(fbb_.EndTable(start_, 10));
+    auto o = flatbuffers::Offset<Imq>(fbb_.EndTable(start_, 12));
     return o;
   }
 };
 
 inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::String> MsgId = 0,
-    Action Action = Action::GET,
+    Action Action = Action::ACK,
     uint16_t Status = 0,
     flatbuffers::Offset<flatbuffers::String> To = 0,
     flatbuffers::Offset<flatbuffers::String> From = 0,
@@ -140,8 +167,11 @@ inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::String> Authorization = 0,
     bool Callback = false,
     flatbuffers::Offset<flatbuffers::Vector<uint8_t>> Body = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Meta>>> Meta = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<KeyVal>>> Meta = 0,
+    Guarantee Guarantee = Guarantee::NONE,
+    int32_t Timeout = 0) {
   ImqBuilder builder_(_fbb);
+  builder_.add_Timeout(Timeout);
   builder_.add_Meta(Meta);
   builder_.add_Body(Body);
   builder_.add_Authorization(Authorization);
@@ -150,6 +180,7 @@ inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb,
   builder_.add_To(To);
   builder_.add_MsgId(MsgId);
   builder_.add_Status(Status);
+  builder_.add_Guarantee(Guarantee);
   builder_.add_Callback(Callback);
   builder_.add_Action(Action);
   return builder_.Finish();
@@ -157,7 +188,7 @@ inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb,
 
 inline flatbuffers::Offset<Imq> CreateImqDirect(flatbuffers::FlatBufferBuilder &_fbb,
     const char *MsgId = nullptr,
-    Action Action = Action::GET,
+    Action Action = Action::ACK,
     uint16_t Status = 0,
     const char *To = nullptr,
     const char *From = nullptr,
@@ -165,25 +196,27 @@ inline flatbuffers::Offset<Imq> CreateImqDirect(flatbuffers::FlatBufferBuilder &
     const char *Authorization = nullptr,
     bool Callback = false,
     const std::vector<uint8_t> *Body = nullptr,
-    const std::vector<flatbuffers::Offset<Meta>> *Meta = nullptr) {
-  return CreateImq(_fbb, MsgId ? _fbb.CreateString(MsgId) : 0, Action, Status, To ? _fbb.CreateString(To) : 0, From ? _fbb.CreateString(From) : 0, Path ? _fbb.CreateString(Path) : 0, Authorization ? _fbb.CreateString(Authorization) : 0, Callback, Body ? _fbb.CreateVector<uint8_t>(*Body) : 0, Meta ? _fbb.CreateVector<flatbuffers::Offset<Meta>>(*Meta) : 0);
+    const std::vector<flatbuffers::Offset<KeyVal>> *Meta = nullptr,
+    Guarantee Guarantee = Guarantee::NONE,
+    int32_t Timeout = 0) {
+  return CreateImq(_fbb, MsgId ? _fbb.CreateString(MsgId) : 0, Action, Status, To ? _fbb.CreateString(To) : 0, From ? _fbb.CreateString(From) : 0, Path ? _fbb.CreateString(Path) : 0, Authorization ? _fbb.CreateString(Authorization) : 0, Callback, Body ? _fbb.CreateVector<uint8_t>(*Body) : 0, Meta ? _fbb.CreateVector<flatbuffers::Offset<KeyVal>>(*Meta) : 0, Guarantee, Timeout);
 }
 
 inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb, const ImqT *_o, const flatbuffers::rehasher_function_t *rehasher = nullptr);
 
-struct MetaT : public flatbuffers::NativeTable {
+struct KeyValT : public flatbuffers::NativeTable {
   std::string Key;
   std::string Value;
 };
 
-struct Meta FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct KeyVal FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum {
     VT_KEY = 4,
     VT_VALUE = 6
   };
   const flatbuffers::String *Key() const { return GetPointer<const flatbuffers::String *>(VT_KEY); }
   flatbuffers::String *mutable_Key() { return GetPointer<flatbuffers::String *>(VT_KEY); }
-  bool KeyCompareLessThan(const Meta *o) const { return *Key() < *o->Key(); }
+  bool KeyCompareLessThan(const KeyVal *o) const { return *Key() < *o->Key(); }
   int KeyCompareWithValue(const char *val) const { return strcmp(Key()->c_str(), val); }
   const flatbuffers::String *Value() const { return GetPointer<const flatbuffers::String *>(VT_VALUE); }
   flatbuffers::String *mutable_Value() { return GetPointer<flatbuffers::String *>(VT_VALUE); }
@@ -195,39 +228,39 @@ struct Meta FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.Verify(Value()) &&
            verifier.EndTable();
   }
-  MetaT *UnPack(const flatbuffers::resolver_function_t *resolver = nullptr) const;
+  KeyValT *UnPack(const flatbuffers::resolver_function_t *resolver = nullptr) const;
 };
 
-struct MetaBuilder {
+struct KeyValBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_Key(flatbuffers::Offset<flatbuffers::String> Key) { fbb_.AddOffset(Meta::VT_KEY, Key); }
-  void add_Value(flatbuffers::Offset<flatbuffers::String> Value) { fbb_.AddOffset(Meta::VT_VALUE, Value); }
-  MetaBuilder(flatbuffers::FlatBufferBuilder &_fbb) : fbb_(_fbb) { start_ = fbb_.StartTable(); }
-  MetaBuilder &operator=(const MetaBuilder &);
-  flatbuffers::Offset<Meta> Finish() {
-    auto o = flatbuffers::Offset<Meta>(fbb_.EndTable(start_, 2));
-    fbb_.Required(o, Meta::VT_KEY);  // Key
+  void add_Key(flatbuffers::Offset<flatbuffers::String> Key) { fbb_.AddOffset(KeyVal::VT_KEY, Key); }
+  void add_Value(flatbuffers::Offset<flatbuffers::String> Value) { fbb_.AddOffset(KeyVal::VT_VALUE, Value); }
+  KeyValBuilder(flatbuffers::FlatBufferBuilder &_fbb) : fbb_(_fbb) { start_ = fbb_.StartTable(); }
+  KeyValBuilder &operator=(const KeyValBuilder &);
+  flatbuffers::Offset<KeyVal> Finish() {
+    auto o = flatbuffers::Offset<KeyVal>(fbb_.EndTable(start_, 2));
+    fbb_.Required(o, KeyVal::VT_KEY);  // Key
     return o;
   }
 };
 
-inline flatbuffers::Offset<Meta> CreateMeta(flatbuffers::FlatBufferBuilder &_fbb,
+inline flatbuffers::Offset<KeyVal> CreateKeyVal(flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::String> Key = 0,
     flatbuffers::Offset<flatbuffers::String> Value = 0) {
-  MetaBuilder builder_(_fbb);
+  KeyValBuilder builder_(_fbb);
   builder_.add_Value(Value);
   builder_.add_Key(Key);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<Meta> CreateMetaDirect(flatbuffers::FlatBufferBuilder &_fbb,
+inline flatbuffers::Offset<KeyVal> CreateKeyValDirect(flatbuffers::FlatBufferBuilder &_fbb,
     const char *Key = nullptr,
     const char *Value = nullptr) {
-  return CreateMeta(_fbb, Key ? _fbb.CreateString(Key) : 0, Value ? _fbb.CreateString(Value) : 0);
+  return CreateKeyVal(_fbb, Key ? _fbb.CreateString(Key) : 0, Value ? _fbb.CreateString(Value) : 0);
 }
 
-inline flatbuffers::Offset<Meta> CreateMeta(flatbuffers::FlatBufferBuilder &_fbb, const MetaT *_o, const flatbuffers::rehasher_function_t *rehasher = nullptr);
+inline flatbuffers::Offset<KeyVal> CreateKeyVal(flatbuffers::FlatBufferBuilder &_fbb, const KeyValT *_o, const flatbuffers::rehasher_function_t *rehasher = nullptr);
 
 inline ImqT *Imq::UnPack(const flatbuffers::resolver_function_t *resolver) const {
   (void)resolver;
@@ -241,7 +274,9 @@ inline ImqT *Imq::UnPack(const flatbuffers::resolver_function_t *resolver) const
   { auto _e = Authorization(); if (_e) _o->Authorization = _e->str(); };
   { auto _e = Callback(); _o->Callback = _e; };
   { auto _e = Body(); if (_e) { for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->Body.push_back(_e->Get(_i)); } } };
-  { auto _e = Meta(); if (_e) { for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->Meta.push_back(std::unique_ptr<MetaT>(_e->Get(_i)->UnPack(resolver))); } } };
+  { auto _e = Meta(); if (_e) { for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->Meta.push_back(std::unique_ptr<KeyValT>(_e->Get(_i)->UnPack(resolver))); } } };
+  { auto _e = Guarantee(); _o->Guarantee = _e; };
+  { auto _e = Timeout(); _o->Timeout = _e; };
   return _o;
 }
 
@@ -257,20 +292,22 @@ inline flatbuffers::Offset<Imq> CreateImq(flatbuffers::FlatBufferBuilder &_fbb, 
     _o->Authorization.size() ? _fbb.CreateString(_o->Authorization) : 0,
     _o->Callback,
     _o->Body.size() ? _fbb.CreateVector(_o->Body) : 0,
-    _o->Meta.size() ? _fbb.CreateVector<flatbuffers::Offset<Meta>>(_o->Meta.size(), [&](size_t i) { return CreateMeta(_fbb, _o->Meta[i].get(), rehasher); }) : 0);
+    _o->Meta.size() ? _fbb.CreateVector<flatbuffers::Offset<KeyVal>>(_o->Meta.size(), [&](size_t i) { return CreateKeyVal(_fbb, _o->Meta[i].get(), rehasher); }) : 0,
+    _o->Guarantee,
+    _o->Timeout);
 }
 
-inline MetaT *Meta::UnPack(const flatbuffers::resolver_function_t *resolver) const {
+inline KeyValT *KeyVal::UnPack(const flatbuffers::resolver_function_t *resolver) const {
   (void)resolver;
-  auto _o = new MetaT();
+  auto _o = new KeyValT();
   { auto _e = Key(); if (_e) _o->Key = _e->str(); };
   { auto _e = Value(); if (_e) _o->Value = _e->str(); };
   return _o;
 }
 
-inline flatbuffers::Offset<Meta> CreateMeta(flatbuffers::FlatBufferBuilder &_fbb, const MetaT *_o, const flatbuffers::rehasher_function_t *rehasher) {
+inline flatbuffers::Offset<KeyVal> CreateKeyVal(flatbuffers::FlatBufferBuilder &_fbb, const KeyValT *_o, const flatbuffers::rehasher_function_t *rehasher) {
   (void)rehasher;
-  return CreateMeta(_fbb,
+  return CreateKeyVal(_fbb,
     _fbb.CreateString(_o->Key),
     _o->Value.size() ? _fbb.CreateString(_o->Value) : 0);
 }
