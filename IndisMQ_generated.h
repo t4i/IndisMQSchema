@@ -16,24 +16,23 @@ struct KeyValT;
 enum class Action : int8_t {
   ACK = 0,
   GET = 1,
-  RESPONSE = 2,
-  SET = 3,
-  NEW = 4,
-  APPEND = 5,
-  REPLACE = 6,
-  UPDATE = 7,
-  DELETE = 8,
-  CAST = 9,
-  SUBSCRIBE = 10,
-  UNSUBSCRIBE = 11,
-  CONNECT = 12,
-  JOIN = 13,
+  HEAD = 2,
+  POST = 3,
+  PUT = 4,
+  DELETE = 5,
+  CONNECT = 6,
+  OPTIONS = 7,
+  TRACE = 8,
+  PATCH = 9,
+  RESPONSE = 10,
+  SUBSCRIBE = 11,
+  UNSUBSCRIBE = 12,
   MIN = ACK,
-  MAX = JOIN
+  MAX = UNSUBSCRIBE
 };
 
 inline const char **EnumNamesAction() {
-  static const char *names[] = { "ACK", "GET", "RESPONSE", "SET", "NEW", "APPEND", "REPLACE", "UPDATE", "DELETE", "CAST", "SUBSCRIBE", "UNSUBSCRIBE", "CONNECT", "JOIN", nullptr };
+  static const char *names[] = { "ACK", "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "RESPONSE", "SUBSCRIBE", "UNSUBSCRIBE", nullptr };
   return names;
 }
 
@@ -85,8 +84,8 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   };
   const flatbuffers::String *MsgId() const { return GetPointer<const flatbuffers::String *>(VT_MSGID); }
   flatbuffers::String *mutable_MsgId() { return GetPointer<flatbuffers::String *>(VT_MSGID); }
-  Action Action() const { return static_cast<IndisMQ::Action>(GetField<int8_t>(VT_ACTION, 0)); }
-  bool mutate_Action(IndisMQ::Action _Action) { return SetField(VT_ACTION, static_cast<int8_t>(_Action)); }
+  Action Action() const { return static_cast<Action>(GetField<int8_t>(VT_ACTION, 0)); }
+  bool mutate_Action(Action _Action) { return SetField(VT_ACTION, static_cast<int8_t>(_Action)); }
   uint16_t Status() const { return GetField<uint16_t>(VT_STATUS, 0); }
   bool mutate_Status(uint16_t _Status) { return SetField(VT_STATUS, _Status); }
   const flatbuffers::String *To() const { return GetPointer<const flatbuffers::String *>(VT_TO); }
@@ -103,8 +102,8 @@ struct Imq FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   flatbuffers::Vector<uint8_t> *mutable_Body() { return GetPointer<flatbuffers::Vector<uint8_t> *>(VT_BODY); }
   const flatbuffers::Vector<flatbuffers::Offset<KeyVal>> *Meta() const { return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<KeyVal>> *>(VT_META); }
   flatbuffers::Vector<flatbuffers::Offset<KeyVal>> *mutable_Meta() { return GetPointer<flatbuffers::Vector<flatbuffers::Offset<KeyVal>> *>(VT_META); }
-  Guarantee Guarantee() const { return static_cast<IndisMQ::Guarantee>(GetField<int8_t>(VT_GUARANTEE, 0)); }
-  bool mutate_Guarantee(IndisMQ::Guarantee _Guarantee) { return SetField(VT_GUARANTEE, static_cast<int8_t>(_Guarantee)); }
+  Guarantee Guarantee() const { return static_cast<Guarantee>(GetField<int8_t>(VT_GUARANTEE, 0)); }
+  bool mutate_Guarantee(Guarantee _Guarantee) { return SetField(VT_GUARANTEE, static_cast<int8_t>(_Guarantee)); }
   int32_t Timeout() const { return GetField<int32_t>(VT_TIMEOUT, 0); }
   bool mutate_Timeout(int32_t _Timeout) { return SetField(VT_TIMEOUT, _Timeout); }
   bool Verify(flatbuffers::Verifier &verifier) const {
