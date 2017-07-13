@@ -27,12 +27,13 @@ enum class Action : int8_t {
   RESPONSE = 10,
   SUBSCRIBE = 11,
   UNSUBSCRIBE = 12,
+  CAST = 13,
   MIN = ACK,
-  MAX = UNSUBSCRIBE
+  MAX = CAST
 };
 
 inline const char **EnumNamesAction() {
-  static const char *names[] = { "ACK", "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "RESPONSE", "SUBSCRIBE", "UNSUBSCRIBE", nullptr };
+  static const char *names[] = { "ACK", "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "RESPONSE", "SUBSCRIBE", "UNSUBSCRIBE", "CAST", nullptr };
   return names;
 }
 

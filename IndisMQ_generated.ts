@@ -18,7 +18,8 @@ export enum Action{
   PATCH= 9,
   RESPONSE= 10,
   SUBSCRIBE= 11,
-  UNSUBSCRIBE= 12
+  UNSUBSCRIBE= 12,
+  CAST= 13
 }}
 
 /**

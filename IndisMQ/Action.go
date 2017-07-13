@@ -16,6 +16,7 @@ const (
 	ActionRESPONSE = 10
 	ActionSUBSCRIBE = 11
 	ActionUNSUBSCRIBE = 12
+	ActionCAST = 13
 )
 
 var EnumNamesAction = map[int]string{
@@ -32,5 +33,6 @@ var EnumNamesAction = map[int]string{
 	ActionRESPONSE:"RESPONSE",
 	ActionSUBSCRIBE:"SUBSCRIBE",
 	ActionUNSUBSCRIBE:"UNSUBSCRIBE",
+	ActionCAST:"CAST",
 }
 
